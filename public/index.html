@@ -1,0 +1,1288 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-touch-fullscreen" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Crystal Patterns — Fuzzywumpets</title>
+<link rel="icon" href="/logo.png?v=mrb3rxry">
+<link rel="apple-touch-icon" href="/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;1,700;1,800&family=Saira+Extra+Condensed:wght@700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --lime:#9BBC0E; --lime-soft:#b6d62a; --black:#000; --ink:#0c0c0c;
+    --panel:#141414; --panel-2:#1c1c1c; --ivory:#fff; --muted:#9a9a9a;
+    --line:rgba(255,255,255,.10); --radius:16px;
+    --serif:"Playfair Display",Georgia,"Times New Roman",serif;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --cond:"Saira Extra Condensed","alternate-gothic-extra-cond",Impact,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--black); color:var(--ivory); font-family:var(--sans);
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+    padding-bottom:64px;
+  }
+  a{color:inherit; text-decoration:none}
+
+  /* Header */
+  .top{
+    position:sticky; top:0; z-index:20;
+    background:linear-gradient(180deg,rgba(0,0,0,.96),rgba(0,0,0,.86));
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .top-inner{
+    max-width:1400px; margin:0 auto; padding:16px 22px;
+    display:flex; align-items:center; gap:18px;
+  }
+  .brand{display:flex; align-items:center; gap:16px; min-width:0}
+  .brand img{height:52px; width:auto; display:block; filter:drop-shadow(0 2px 6px rgba(0,0,0,.6))}
+  .brand-text{min-width:0}
+  .kicker{
+    font-family:var(--cond); font-size:17px; letter-spacing:.1em; text-transform:uppercase;
+    color:var(--lime); font-weight:900; line-height:1;
+  }
+  .brand-text h1{
+    font-family:var(--serif); font-weight:800; font-size:30px; line-height:1.05;
+    margin:6px 0 0; color:var(--ivory);
+  }
+  .meta{margin-left:auto; text-align:right; color:var(--muted); font-size:12.5px; line-height:1.5; white-space:nowrap}
+  .meta b{color:var(--lime); font-weight:800}
+
+  /* Section nav (the width chips) */
+  .nav{
+    position:sticky; top:85px; z-index:15;
+    background:rgba(0,0,0,.82); backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav-inner{
+    max-width:1400px; margin:0 auto; padding:12px 22px;
+    display:flex; flex-direction:column; gap:12px;
+  }
+  .chips{display:flex; gap:10px; flex-wrap:wrap}
+  .search-wrap{position:relative; display:flex; align-items:center; max-width:520px; width:100%}
+  #search{
+    width:100%; box-sizing:border-box;
+    padding:13px 42px 13px 44px; border-radius:999px;
+    background:var(--panel) url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%239a9a9a" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>') no-repeat 14px center;
+    border:1px solid var(--line); color:var(--ivory);
+    font-family:var(--sans); font-size:16px; font-weight:600; outline:none;
+    transition:border-color .15s ease, box-shadow .15s ease;
+  }
+  #search::placeholder{color:var(--muted); font-weight:500}
+  #search:focus{border-color:var(--lime); box-shadow:0 0 0 3px rgba(155,188,14,.22)}
+  #search::-webkit-search-cancel-button{-webkit-appearance:none}
+  #search-clear{
+    position:absolute; right:8px; top:50%; transform:translateY(-50%);
+    width:30px; height:30px; border-radius:50%; border:none; cursor:pointer;
+    background:var(--panel-2); color:var(--muted); font-size:20px; line-height:1;
+    display:flex; align-items:center; justify-content:center; padding:0;
+  }
+  #search-clear:hover{color:var(--ivory); background:#2a2a2a}
+  .noresults{color:var(--muted); font-size:15px; padding:4px 2px}
+  .noresults span{color:var(--ivory); font-weight:700}
+  .chip{
+    display:inline-flex; align-items:center; gap:8px;
+    padding:11px 18px; border-radius:999px;
+    background:var(--panel); border:1px solid var(--line);
+    font-weight:700; font-size:15px; color:var(--ivory);
+    transition:transform .08s ease, background .15s ease, border-color .15s ease;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .chip:hover,.chip:focus{background:var(--panel-2); border-color:var(--lime)}
+  .chip:active{transform:scale(.97)}
+  .chip-n{
+    font-size:12.5px; font-weight:800; color:var(--black);
+    background:var(--lime); border-radius:999px; padding:2px 9px; line-height:1.4;
+  }
+
+  /* Sections */
+  main{max-width:1400px; margin:0 auto; padding:8px 22px 0}
+  .section{padding:30px 0 8px; scroll-margin-top:150px}
+  .section-head{
+    display:flex; align-items:baseline; gap:14px;
+    padding-bottom:14px; margin-bottom:20px;
+    border-bottom:2px solid var(--lime);
+  }
+  .section-head h2{
+    font-family:var(--serif); font-weight:800; font-size:27px; margin:0; color:var(--ivory);
+  }
+  .count{color:var(--muted); font-size:14px; font-weight:600}
+
+  /* Grid */
+  .grid{
+    display:grid; gap:18px;
+    grid-template-columns:repeat(auto-fill,minmax(210px,1fr));
+  }
+  .card{
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
+    overflow:hidden; display:flex; flex-direction:column;
+    transition:transform .1s ease, border-color .15s ease, box-shadow .15s ease;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .card:hover,.card:focus{
+    transform:translateY(-3px); border-color:var(--lime);
+    box-shadow:0 10px 28px rgba(0,0,0,.5), 0 0 0 1px rgba(155,188,14,.35);
+  }
+  .card:active{transform:translateY(-1px) scale(.995)}
+  .thumb{
+    aspect-ratio:1/1; background:var(--ink);
+    display:flex; align-items:center; justify-content:center; overflow:hidden;
+  }
+  .thumb img{width:100%; height:100%; object-fit:cover; display:block}
+  .pdf-thumb{
+    background:linear-gradient(135deg,#1e1e1e,#101010);
+    position:relative;
+  }
+  .pdf-badge{
+    font-family:var(--serif); font-weight:800; font-size:34px; letter-spacing:.06em;
+    color:var(--lime); border:2px solid var(--lime); border-radius:12px; padding:12px 20px;
+  }
+  .cap{
+    padding:13px 14px; font-size:15px; font-weight:600; line-height:1.3;
+    color:var(--ivory);
+    border-top:1px solid var(--line);
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+    min-height:calc(1.3em * 2 + 26px);
+  }
+
+  footer{
+    max-width:1400px; margin:44px auto 0; padding:26px 22px;
+    border-top:1px solid var(--line); color:var(--muted); font-size:13px;
+    display:flex; justify-content:space-between; gap:14px; flex-wrap:wrap;
+  }
+  footer .dot{color:var(--lime)}
+
+  @media (max-width:640px){
+    .brand img{height:42px}
+    .brand-text h1{font-size:23px}
+    .meta{display:none}
+    .grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:13px}
+    .nav{top:73px}
+    .section{scroll-margin-top:132px}
+  }
+  /* Tablet (641–1024px) */
+  @media (min-width:641px) and (max-width:1024px){
+    .top-inner{padding:14px 20px}
+    .brand-text h1{font-size:26px}
+    .nav-inner{padding:10px 20px; gap:10px}
+    main{padding:8px 20px 0}
+    .grid{grid-template-columns:repeat(auto-fill,minmax(185px,1fr)); gap:15px}
+    .section{scroll-margin-top:148px}
+    .search-wrap{max-width:100%}
+    #search{font-size:15px}
+    .chip{padding:10px 16px; font-size:14px}
+    footer{padding:20px 20px}
+  }
+  /* Lightbox */
+  #lightbox{
+    position:fixed; inset:0; z-index:200;
+    background:#000; display:flex; flex-direction:column;
+  }
+  #lightbox[hidden]{display:none}
+  #lb-bar{
+    display:flex; align-items:center; gap:16px;
+    padding:14px 20px; flex-shrink:0;
+    background:rgba(0,0,0,.94); backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--line);
+  }
+  #lb-back{
+    display:inline-flex; align-items:center; gap:8px;
+    padding:11px 22px; border-radius:999px;
+    background:var(--panel); border:1px solid var(--line);
+    color:var(--ivory); font-family:var(--sans); font-size:15px; font-weight:700;
+    cursor:pointer; transition:background .15s,border-color .15s,color .15s;
+    flex-shrink:0; -webkit-tap-highlight-color:transparent; min-height:44px;
+  }
+  #lb-back:hover,#lb-back:focus{background:var(--panel-2); border-color:var(--lime); color:var(--lime)}
+  #lb-back:active{transform:scale(.97)}
+  #lb-info{flex:1; min-width:0; overflow:hidden}
+  #lb-sec{
+    font-family:var(--cond); font-size:13px; letter-spacing:.15em; text-transform:uppercase;
+    color:var(--lime); font-weight:900; line-height:1; margin-bottom:5px;
+  }
+  #lb-title{
+    font-family:var(--serif); font-size:19px; font-weight:700; font-style:italic;
+    color:var(--ivory); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+    text-transform:capitalize;
+  }
+  #lb-stage{
+    flex:1; display:flex; align-items:center; justify-content:center;
+    padding:24px; overflow:auto; cursor:zoom-out;
+  }
+  #lb-img{
+    max-width:100%; max-height:100%; object-fit:contain;
+    border-radius:10px; box-shadow:0 24px 72px rgba(0,0,0,.85);
+    cursor:default;
+  }
+  @media(max-width:640px){
+    #lb-bar{padding:10px 14px; gap:10px}
+    #lb-back{padding:9px 16px; font-size:14px}
+    #lb-title{font-size:15px}
+    #lb-stage{padding:12px}
+  }
+</style>
+</head>
+<body>
+  <div id="lightbox" hidden role="dialog" aria-modal="true" aria-label="Pattern viewer">
+    <div id="lb-bar">
+      <button id="lb-back" type="button" aria-label="Back to gallery">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 5l-7 7 7 7"/></svg>
+        Back
+      </button>
+      <div id="lb-info">
+        <div id="lb-sec"></div>
+        <div id="lb-title"></div>
+      </div>
+    </div>
+    <div id="lb-stage">
+      <img id="lb-img" src="" alt="Pattern">
+    </div>
+  </div>
+  <header class="top">
+    <div class="top-inner">
+      <div class="brand">
+        <img src="/logo.png?v=mrb3rxry" alt="Fuzzywumpets">
+        <div class="brand-text">
+          <div class="kicker">Fuzzywumpets</div>
+          <h1>Crystal Patterns</h1>
+        </div>
+      </div>
+      <div class="meta">
+        <div><b>220</b> patterns</div>
+        <div>Synced Jul 7, 2026, 3:30 PM CT</div>
+      </div>
+    </div>
+  </header>
+
+  <nav class="nav" aria-label="Collar widths">
+    <div class="nav-inner">
+      <div class="search-wrap">
+        <input id="search" type="search" placeholder="Search patterns by name/number…" autocomplete="off" spellcheck="false" aria-label="Search patterns">
+        <button id="search-clear" type="button" aria-label="Clear search" hidden>&times;</button>
+      </div>
+      <div class="chips"><a class="chip" href="#sec-half">1/2&quot; Collars <span class="chip-n">9</span></a>
+<a class="chip" href="#sec-five8">5/8&quot; Collars <span class="chip-n">24</span></a>
+<a class="chip" href="#sec-one">1&quot; Collars <span class="chip-n">56</span></a>
+<a class="chip" href="#sec-onehalf">1.5&quot; Collars <span class="chip-n">125</span></a>
+<a class="chip" href="#sec-prong">Prong Amounts <span class="chip-n">5</span></a>
+<a class="chip" href="#sec-root">Other Patterns <span class="chip-n">1</span></a></div>
+    </div>
+    <div id="noresults" class="noresults" hidden>No patterns match “<span id="nrq"></span>”.</div>
+  </nav>
+
+  <main>
+    
+      <section id="sec-half" class="section">
+        <div class="section-head">
+          <h2>1/2&quot; Collars</h2>
+          <span class="count">9 patterns</span>
+        </div>
+        <div class="grid"><a class="card" data-title="fwk_0395" href="/patterns/half/1j7dAPZeWcM_eRaSzEtc_5OsYEMCK6ZvY.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1j7dAPZeWcM_eRaSzEtc_5OsYEMCK6ZvY.jpg" alt="FWK_0395"></div>
+             <div class="cap">FWK_0395</div>
+           </a>
+<a class="card" data-title="fwk_0394" href="/patterns/half/1OEbAZOTX1PjcC7lbkDVgmgdtkwy1nuE2.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1OEbAZOTX1PjcC7lbkDVgmgdtkwy1nuE2.jpg" alt="FWK_0394"></div>
+             <div class="cap">FWK_0394</div>
+           </a>
+<a class="card" data-title="fwk_0396" href="/patterns/half/1KDJPwkb_FxdRxU4zQhM5T8304f5HNWE4.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1KDJPwkb_FxdRxU4zQhM5T8304f5HNWE4.jpg" alt="FWK_0396"></div>
+             <div class="cap">FWK_0396</div>
+           </a>
+<a class="card" data-title="fwk_0397" href="/patterns/half/1AEv3Mn3tx6ATWiGvzMq0K_tV8dixVkgI.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1AEv3Mn3tx6ATWiGvzMq0K_tV8dixVkgI.jpg" alt="FWK_0397"></div>
+             <div class="cap">FWK_0397</div>
+           </a>
+<a class="card" data-title="aqua renaissance" href="/patterns/half/1XtEq74qdYVPd-lAUsz4nMepZR4wG5MXw.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1XtEq74qdYVPd-lAUsz4nMepZR4wG5MXw.jpg" alt="Aqua Renaissance"></div>
+             <div class="cap">Aqua Renaissance</div>
+           </a>
+<a class="card" data-title="red medallions" href="/patterns/half/1ccg8hAElCmBc7drwQngWyTSTvEwx4pWC.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1ccg8hAElCmBc7drwQngWyTSTvEwx4pWC.jpg" alt="Red Medallions"></div>
+             <div class="cap">Red Medallions</div>
+           </a>
+<a class="card" data-title="pretty in pink" href="/patterns/half/1VWDCFUmjkCqxu_PxJh9X8idzY29KNQnw.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1VWDCFUmjkCqxu_PxJh9X8idzY29KNQnw.jpg" alt="Pretty in pink"></div>
+             <div class="cap">Pretty in pink</div>
+           </a>
+<a class="card" data-title="purple posie" href="/patterns/half/1a0tPHNCZOZalpJOkxPX1wLTqALiGTA8D.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1a0tPHNCZOZalpJOkxPX1wLTqALiGTA8D.jpg" alt="Purple posie"></div>
+             <div class="cap">Purple posie</div>
+           </a>
+<a class="card" data-title="helix" href="/patterns/half/1XQ-OUw8BPzplG793vTevRIDMw4cTRiIX.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1XQ-OUw8BPzplG793vTevRIDMw4cTRiIX.jpg" alt="Helix"></div>
+             <div class="cap">Helix</div>
+           </a></div>
+      </section>
+
+      <section id="sec-five8" class="section">
+        <div class="section-head">
+          <h2>5/8&quot; Collars</h2>
+          <span class="count">24 patterns</span>
+        </div>
+        <div class="grid"><a class="card" data-title="img_0421" href="/patterns/five8/14BqRAJn2zIfzyJ2E6T8qXMIAwCN3ArMG.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/14BqRAJn2zIfzyJ2E6T8qXMIAwCN3ArMG.jpg" alt="IMG_0421"></div>
+             <div class="cap">IMG_0421</div>
+           </a>
+<a class="card" data-title="img_0105" href="/patterns/five8/1A47C5VTkcKQDCDr8SWi1ggd4eJTOf3y1.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1A47C5VTkcKQDCDr8SWi1ggd4eJTOf3y1.jpg" alt="IMG_0105"></div>
+             <div class="cap">IMG_0105</div>
+           </a>
+<a class="card" data-title="img_0104" href="/patterns/five8/18NBgHF7uJvvirlNT-ZN-JIqMVJKjXUkq.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/18NBgHF7uJvvirlNT-ZN-JIqMVJKjXUkq.jpg" alt="IMG_0104"></div>
+             <div class="cap">IMG_0104</div>
+           </a>
+<a class="card" data-title="img_2811" href="/patterns/five8/1YDIlYqRtO5bIEBMaNLxtboIakYl0MYBg.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1YDIlYqRtO5bIEBMaNLxtboIakYl0MYBg.jpg" alt="IMG_2811"></div>
+             <div class="cap">IMG_2811</div>
+           </a>
+<a class="card" data-title="equinox" href="/patterns/five8/1E9zDgb49BqFJjsxbVvfcuDJGoL0atOaT.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1E9zDgb49BqFJjsxbVvfcuDJGoL0atOaT.jpg" alt="Equinox"></div>
+             <div class="cap">Equinox</div>
+           </a>
+<a class="card" data-title="aurora" href="/patterns/five8/1Vlz9apDmhASqqavAQuj4WEczhDDSbiNT.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1Vlz9apDmhASqqavAQuj4WEczhDDSbiNT.jpg" alt="Aurora"></div>
+             <div class="cap">Aurora</div>
+           </a>
+<a class="card" data-title="sylvie" href="/patterns/five8/1mPyfM15zQahfB90CuwwozFhSgFcLtNEW.png" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1mPyfM15zQahfB90CuwwozFhSgFcLtNEW.jpg" alt="Sylvie"></div>
+             <div class="cap">Sylvie</div>
+           </a>
+<a class="card" data-title="img_3147" href="/patterns/five8/1q_SHCSdmbpPZNnXuoRBorEU92oa3A0IO.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1q_SHCSdmbpPZNnXuoRBorEU92oa3A0IO.jpg" alt="IMG_3147"></div>
+             <div class="cap">IMG_3147</div>
+           </a>
+<a class="card" data-title="barrington" href="/patterns/five8/1P_Xi4ow59Er5Ur5PEBSmVE_qMM08Qrg-.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1P_Xi4ow59Er5Ur5PEBSmVE_qMM08Qrg-.jpg" alt="Barrington"></div>
+             <div class="cap">Barrington</div>
+           </a>
+<a class="card" data-title="rose blush" href="/patterns/five8/1bKFOQDUVO5F8rUa8L1Ny-rVeDXt4tdjg.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1bKFOQDUVO5F8rUa8L1Ny-rVeDXt4tdjg.jpg" alt="Rose blush"></div>
+             <div class="cap">Rose blush</div>
+           </a>
+<a class="card" data-title="magnus" href="/patterns/five8/19pmLxwZ4NO35AkxD2RcwuKUWJaT2w58D.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/19pmLxwZ4NO35AkxD2RcwuKUWJaT2w58D.jpg" alt="Magnus"></div>
+             <div class="cap">Magnus</div>
+           </a>
+<a class="card" data-title="midnight bulgaria" href="/patterns/five8/1AVivj6K2hoYysGj8iVkZ90psLIRTl6r_.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1AVivj6K2hoYysGj8iVkZ90psLIRTl6r_.jpg" alt="midnight bulgaria"></div>
+             <div class="cap">midnight bulgaria</div>
+           </a>
+<a class="card" data-title="anastasia" href="/patterns/five8/1rVxsVKJl_Tv0QQsW4DtaDcoICIzAOihO.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1rVxsVKJl_Tv0QQsW4DtaDcoICIzAOihO.jpg" alt="Anastasia"></div>
+             <div class="cap">Anastasia</div>
+           </a>
+<a class="card" data-title="img_4908" href="/patterns/five8/1fp76ar9y8mWy4ABjP5vOcxUUiTSSl8ve.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1fp76ar9y8mWy4ABjP5vOcxUUiTSSl8ve.jpg" alt="IMG_4908"></div>
+             <div class="cap">IMG_4908</div>
+           </a>
+<a class="card" data-title="kristoff" href="/patterns/five8/1taOVUskWQm56bV6DNMaV0ed5fiEhWHd9.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1taOVUskWQm56bV6DNMaV0ed5fiEhWHd9.jpg" alt="Kristoff"></div>
+             <div class="cap">Kristoff</div>
+           </a>
+<a class="card" data-title="purple bulgaria 5-8" href="/patterns/five8/13SWyxZUPv3fnMLJEmAxu2-537htAiQtJ.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/13SWyxZUPv3fnMLJEmAxu2-537htAiQtJ.jpg" alt="Purple Bulgaria 5-8"></div>
+             <div class="cap">Purple Bulgaria 5-8</div>
+           </a>
+<a class="card" data-title="terracotta bulgaria 5-8" href="/patterns/five8/14lZNqVLbZVeMjw7g_Hy6iYY09foEB1fq.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/14lZNqVLbZVeMjw7g_Hy6iYY09foEB1fq.jpg" alt="Terracotta Bulgaria 5-8"></div>
+             <div class="cap">Terracotta Bulgaria 5-8</div>
+           </a>
+<a class="card" data-title="manchester grey" href="/patterns/five8/1P915sSC8frOPrhA_1CiyTjN26xl-mz1o.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1P915sSC8frOPrhA_1CiyTjN26xl-mz1o.jpg" alt="Manchester Grey"></div>
+             <div class="cap">Manchester Grey</div>
+           </a>
+<a class="card" data-title="strut your stuff" href="/patterns/five8/1rYJLG0s3z20KwrCdlNlRZKJ7YPBYt0I9.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1rYJLG0s3z20KwrCdlNlRZKJ7YPBYt0I9.jpg" alt="Strut Your Stuff"></div>
+             <div class="cap">Strut Your Stuff</div>
+           </a>
+<a class="card" data-title="vanessa" href="/patterns/five8/1I0ulns85FHjerQgOTaqG9tQUQsm2j7cM.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1I0ulns85FHjerQgOTaqG9tQUQsm2j7cM.jpg" alt="Vanessa"></div>
+             <div class="cap">Vanessa</div>
+           </a>
+<a class="card" data-title="black verona" href="/patterns/five8/1XsHwx6jJ8Cr6_IH8ey-Ku69gFWtu5rtm.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1XsHwx6jJ8Cr6_IH8ey-Ku69gFWtu5rtm.jpg" alt="Black Verona"></div>
+             <div class="cap">Black Verona</div>
+           </a>
+<a class="card" data-title="millefleur" href="/patterns/five8/1Jva0ZylaByc_n5zlBt9MZzh6jQDLWX-7.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1Jva0ZylaByc_n5zlBt9MZzh6jQDLWX-7.jpg" alt="Millefleur"></div>
+             <div class="cap">Millefleur</div>
+           </a>
+<a class="card" data-title="claret" href="/patterns/five8/1bhmGmATF5yNCyadJMKYxwmeO8teCk0el.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1bhmGmATF5yNCyadJMKYxwmeO8teCk0el.jpg" alt="Claret"></div>
+             <div class="cap">Claret</div>
+           </a>
+<a class="card" data-title="sir william" href="/patterns/five8/1ObjYunysioUHUEm2FP1Q7x7Z5aq1om7F.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1ObjYunysioUHUEm2FP1Q7x7Z5aq1om7F.jpg" alt="Sir William"></div>
+             <div class="cap">Sir William</div>
+           </a></div>
+      </section>
+
+      <section id="sec-one" class="section">
+        <div class="section-head">
+          <h2>1&quot; Collars</h2>
+          <span class="count">56 patterns</span>
+        </div>
+        <div class="grid"><a class="card" data-title="gilded in green" href="/patterns/one/1th9z38dzMYt2nBJ72aQB13MAspCuvK_g.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1th9z38dzMYt2nBJ72aQB13MAspCuvK_g.jpg" alt="Gilded In Green"></div>
+             <div class="cap">Gilded In Green</div>
+           </a>
+<a class="card" data-title="seagodpeen" href="/patterns/one/1kp0AiwokUwE8kJhMX1XuxX5KQ9gu4bt3.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1kp0AiwokUwE8kJhMX1XuxX5KQ9gu4bt3.jpg" alt="SeaGodPeen"></div>
+             <div class="cap">SeaGodPeen</div>
+           </a>
+<a class="card" data-title="floral evening" href="/patterns/one/1Rw7uKcKi00-Sq2nvU0gcrmmc06YqtF_U.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1Rw7uKcKi00-Sq2nvU0gcrmmc06YqtF_U.jpg" alt="Floral evening"></div>
+             <div class="cap">Floral evening</div>
+           </a>
+<a class="card" data-title="etherial" href="/patterns/one/1zWOoFKnlZQJ5e7ke_utAbi4ICN_GWpQc.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1zWOoFKnlZQJ5e7ke_utAbi4ICN_GWpQc.jpg" alt="Etherial"></div>
+             <div class="cap">Etherial</div>
+           </a>
+<a class="card" data-title="floral morning" href="/patterns/one/1Qulb36hmUxeLE-tFRTivxTAXxeM4B4_a.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1Qulb36hmUxeLE-tFRTivxTAXxeM4B4_a.jpg" alt="Floral morning"></div>
+             <div class="cap">Floral morning</div>
+           </a>
+<a class="card" data-title="78512902794__c322bab3" href="/patterns/one/1kIUMBF4I9sVLqFLxGHmJz9Yf4e0aDVJz.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1kIUMBF4I9sVLqFLxGHmJz9Yf4e0aDVJz.jpg" alt="78512902794__C322BAB3"></div>
+             <div class="cap">78512902794__C322BAB3</div>
+           </a>
+<a class="card" data-title="img_4241" href="/patterns/one/1srQSvuEwOi_8J1c2XBHju-PEM2Xvwfnr.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1srQSvuEwOi_8J1c2XBHju-PEM2Xvwfnr.jpg" alt="IMG_4241"></div>
+             <div class="cap">IMG_4241</div>
+           </a>
+<a class="card" data-title="cardinal etoile" href="/patterns/one/1Cu0yZvjLCkNksG_ySgbdcPR0AG9MXYw_.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1Cu0yZvjLCkNksG_ySgbdcPR0AG9MXYw_.jpg" alt="Cardinal etoile"></div>
+             <div class="cap">Cardinal etoile</div>
+           </a>
+<a class="card" data-title="fwk_0795" href="/patterns/one/10-O-dEBdbvvMkz6j9qrzQf_6fadpwTXC.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/10-O-dEBdbvvMkz6j9qrzQf_6fadpwTXC.jpg" alt="FWK_0795"></div>
+             <div class="cap">FWK_0795</div>
+           </a>
+<a class="card" data-title="teela" href="/patterns/one/1MtmVyq5kRcacfB4zA6p3ogjUy3LqEuOV.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1MtmVyq5kRcacfB4zA6p3ogjUy3LqEuOV.jpg" alt="Teela"></div>
+             <div class="cap">Teela</div>
+           </a>
+<a class="card" data-title="sylvie" href="/patterns/one/1FWsRDQ68s9xaF-3fPIH8nOQEYpOeokIE.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1FWsRDQ68s9xaF-3fPIH8nOQEYpOeokIE.jpg" alt="Sylvie"></div>
+             <div class="cap">Sylvie</div>
+           </a>
+<a class="card" data-title="img_3146" href="/patterns/one/1PnplqMQE7st6TGfbpXHBqQxcrTx5s4uM.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1PnplqMQE7st6TGfbpXHBqQxcrTx5s4uM.jpg" alt="IMG_3146"></div>
+             <div class="cap">IMG_3146</div>
+           </a>
+<a class="card" data-title="fwk_0409" href="/patterns/one/1z0yn5kgWPoEDUAumGyTerhKOzE26JtIc.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1z0yn5kgWPoEDUAumGyTerhKOzE26JtIc.jpg" alt="FWK_0409"></div>
+             <div class="cap">FWK_0409</div>
+           </a>
+<a class="card" data-title="fwk_0405" href="/patterns/one/1-4bsXGzSpbNq9qwWg6RF1P019FP40hG4.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1-4bsXGzSpbNq9qwWg6RF1P019FP40hG4.jpg" alt="FWK_0405"></div>
+             <div class="cap">FWK_0405</div>
+           </a>
+<a class="card" data-title="fwk_0415" href="/patterns/one/1KQFn2eOMT9M9aTJo24z5dj7dlBcQVW8e.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1KQFn2eOMT9M9aTJo24z5dj7dlBcQVW8e.jpg" alt="FWK_0415"></div>
+             <div class="cap">FWK_0415</div>
+           </a>
+<a class="card" data-title="rose blush" href="/patterns/one/1OGxP1HP9ozzCEGuJR0QRHIVe0Qwzbm7T.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1OGxP1HP9ozzCEGuJR0QRHIVe0Qwzbm7T.jpg" alt="Rose blush"></div>
+             <div class="cap">Rose blush</div>
+           </a>
+<a class="card" data-title="purple etoile" href="/patterns/one/1wHHDPS0vPdc6jqdYDiQ0rjIqRY09uqQc.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1wHHDPS0vPdc6jqdYDiQ0rjIqRY09uqQc.jpg" alt="Purple Etoile"></div>
+             <div class="cap">Purple Etoile</div>
+           </a>
+<a class="card" data-title="aqua serpentine" href="/patterns/one/1eyIW4CY4wp4_At_p6FitNIS3icIONHjZ.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1eyIW4CY4wp4_At_p6FitNIS3icIONHjZ.jpg" alt="Aqua Serpentine"></div>
+             <div class="cap">Aqua Serpentine</div>
+           </a>
+<a class="card" data-title="img_1503" href="/patterns/one/1rJgZJE5L0sZjv--J_nTn-ugKh47SCkk_.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1rJgZJE5L0sZjv--J_nTn-ugKh47SCkk_.jpg" alt="IMG_1503"></div>
+             <div class="cap">IMG_1503</div>
+           </a>
+<a class="card" data-title="img_4657" href="/patterns/one/1X2XHzl0ErYcAxcDzUUtb4pRW5j8zgR6J.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1X2XHzl0ErYcAxcDzUUtb4pRW5j8zgR6J.jpg" alt="IMG_4657"></div>
+             <div class="cap">IMG_4657</div>
+           </a>
+<a class="card" data-title="limerick" href="/patterns/one/1dWEfy0RG07nybjeXE3duzKvnGBIPdqLu.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1dWEfy0RG07nybjeXE3duzKvnGBIPdqLu.jpg" alt="Limerick"></div>
+             <div class="cap">Limerick</div>
+           </a>
+<a class="card" data-title="lavender gaelic" href="/patterns/one/1eYA2HBaGw3p4r2DlhQLx_FyAxz6QSaHx.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1eYA2HBaGw3p4r2DlhQLx_FyAxz6QSaHx.jpg" alt="Lavender Gaelic"></div>
+             <div class="cap">Lavender Gaelic</div>
+           </a>
+<a class="card" data-title="fleur de lis" href="/patterns/one/1LYWY4NB7d6JO9vDWGgAHNIm14vDtX2vp.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1LYWY4NB7d6JO9vDWGgAHNIm14vDtX2vp.jpg" alt="Fleur de Lis"></div>
+             <div class="cap">Fleur de Lis</div>
+           </a>
+<a class="card" data-title="mardi gras" href="/patterns/one/14C2MNHGOu3XWbNov560IyxEU7V813N7E.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/14C2MNHGOu3XWbNov560IyxEU7V813N7E.jpg" alt="Mardi Gras"></div>
+             <div class="cap">Mardi Gras</div>
+           </a>
+<a class="card" data-title="maroon &amp; gold winchester" href="/patterns/one/1_Y9rgJnZKLLrIGAPTvtcwrnTreO8LyAK.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1_Y9rgJnZKLLrIGAPTvtcwrnTreO8LyAK.jpg" alt="Maroon &amp; Gold Winchester"></div>
+             <div class="cap">Maroon &amp; Gold Winchester</div>
+           </a>
+<a class="card" data-title="raspberry delight" href="/patterns/one/1Q51KND2OmUi8yedvgjYebmr_Qy29FnQe.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1Q51KND2OmUi8yedvgjYebmr_Qy29FnQe.jpg" alt="Raspberry Delight"></div>
+             <div class="cap">Raspberry Delight</div>
+           </a>
+<a class="card" data-title="midnight bulgaria" href="/patterns/one/1f6eIeV3BYlpAaZsWhNxIsPmqdah3ww4X.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1f6eIeV3BYlpAaZsWhNxIsPmqdah3ww4X.jpg" alt="midnight bulgaria"></div>
+             <div class="cap">midnight bulgaria</div>
+           </a>
+<a class="card" data-title="aviva" href="/patterns/one/1Fvr9HE3IrNY8GgTUUt5XRqQ_bIsoqKAB.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1Fvr9HE3IrNY8GgTUUt5XRqQ_bIsoqKAB.jpg" alt="Aviva"></div>
+             <div class="cap">Aviva</div>
+           </a>
+<a class="card" data-title="img_6562" href="/patterns/one/102O4nv5r-arBp3hrQcZnHFrK5D-olA_X.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/102O4nv5r-arBp3hrQcZnHFrK5D-olA_X.jpg" alt="IMG_6562"></div>
+             <div class="cap">IMG_6562</div>
+           </a>
+<a class="card" data-title="coral catalina" href="/patterns/one/1jDH3rBsuCTjY7rMcTT5gbObdBQFfLLxo.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1jDH3rBsuCTjY7rMcTT5gbObdBQFfLLxo.jpg" alt="coral catalina"></div>
+             <div class="cap">coral catalina</div>
+           </a>
+<a class="card" data-title="1 byerly" href="/patterns/one/1PNaD-PMh6LG6bl965PHkxfu1gngQ09Wd.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1PNaD-PMh6LG6bl965PHkxfu1gngQ09Wd.jpg" alt="1 Byerly"></div>
+             <div class="cap">1 Byerly</div>
+           </a>
+<a class="card" data-title="ebony descent 1" href="/patterns/one/1Z3rrrBBncOFfriz1u0ArA8aiSnAzv-7B.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1Z3rrrBBncOFfriz1u0ArA8aiSnAzv-7B.jpg" alt="Ebony Descent 1"></div>
+             <div class="cap">Ebony Descent 1</div>
+           </a>
+<a class="card" data-title="court jester" href="/patterns/one/1EkR4-ewe4niMP1aiftbH2lgClFMb5mKG.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1EkR4-ewe4niMP1aiftbH2lgClFMb5mKG.jpg" alt="Court Jester"></div>
+             <div class="cap">Court Jester</div>
+           </a>
+<a class="card" data-title="1 inch tangelo twists" href="/patterns/one/10WE57gAuQ8vGzSM2x6nOfzQGbGjfqGnc.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/10WE57gAuQ8vGzSM2x6nOfzQGbGjfqGnc.jpg" alt="1 inch tangelo twists"></div>
+             <div class="cap">1 inch tangelo twists</div>
+           </a>
+<a class="card" data-title="1 orange &amp; gold honore" href="/patterns/one/1u4QES6aPPjgmzpSkZ7dP5M9V5Q2Ys65v.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1u4QES6aPPjgmzpSkZ7dP5M9V5Q2Ys65v.jpg" alt="1 Orange &amp; Gold Honore"></div>
+             <div class="cap">1 Orange &amp; Gold Honore</div>
+           </a>
+<a class="card" data-title="sherbetmixedpinwheel" href="/patterns/one/1EDUPWZZ4wWTGmGI5GNddoB18atP667w2.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1EDUPWZZ4wWTGmGI5GNddoB18atP667w2.jpg" alt="SherbetMixedPinwheel"></div>
+             <div class="cap">SherbetMixedPinwheel</div>
+           </a>
+<a class="card" data-title="princetonserpentine" href="/patterns/one/1m5mlfQJ18LOfeic_VF_9IPbyPuO_4_6j.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1m5mlfQJ18LOfeic_VF_9IPbyPuO_4_6j.jpg" alt="PrincetonSerpentine"></div>
+             <div class="cap">PrincetonSerpentine</div>
+           </a>
+<a class="card" data-title="gildedinblue" href="/patterns/one/1TsPvUmQRsDGyH-ihXoBBGBXnJNl0jFgj.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1TsPvUmQRsDGyH-ihXoBBGBXnJNl0jFgj.jpg" alt="GildedInBlue"></div>
+             <div class="cap">GildedInBlue</div>
+           </a>
+<a class="card" data-title="pinkgalileo" href="/patterns/one/1J6ZTn8_bXMDQFLPDSZzrYUAvXorLt_5D.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1J6ZTn8_bXMDQFLPDSZzrYUAvXorLt_5D.jpg" alt="PinkGalileo"></div>
+             <div class="cap">PinkGalileo</div>
+           </a>
+<a class="card" data-title="silverblackjack" href="/patterns/one/12TrzwnBkhdYfP0HIyJjU-VeKsE7BD5S1.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/12TrzwnBkhdYfP0HIyJjU-VeKsE7BD5S1.jpg" alt="SilverBlackjack"></div>
+             <div class="cap">SilverBlackjack</div>
+           </a>
+<a class="card" data-title="gildedinpurple" href="/patterns/one/1PjbPMwukrUw3L7ule8LI6HWlisVkp6HQ.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1PjbPMwukrUw3L7ule8LI6HWlisVkp6HQ.jpg" alt="GildedInPurple"></div>
+             <div class="cap">GildedInPurple</div>
+           </a>
+<a class="card" data-title="1 strutyourstuff" href="/patterns/one/1B5iarI44Ght_osROqfeQM-3a-mad6hde.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1B5iarI44Ght_osROqfeQM-3a-mad6hde.jpg" alt="1 StrutYourStuff"></div>
+             <div class="cap">1 StrutYourStuff</div>
+           </a>
+<a class="card" data-title="canterbury 1" href="/patterns/one/1jj_nOBEUwS40c_btf_EUHwOWo2aNQBBa.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1jj_nOBEUwS40c_btf_EUHwOWo2aNQBBa.jpg" alt="Canterbury 1"></div>
+             <div class="cap">Canterbury 1</div>
+           </a>
+<a class="card" data-title="fuchsia and gold honore" href="/patterns/one/1EZb5T-yAPRXWi2xSIvQ2T4NJvE7pyXJt.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1EZb5T-yAPRXWi2xSIvQ2T4NJvE7pyXJt.jpg" alt="Fuchsia and Gold Honore"></div>
+             <div class="cap">Fuchsia and Gold Honore</div>
+           </a>
+<a class="card" data-title="turquoise verona" href="/patterns/one/13Pm-q8UTpbYlf_KtJOOUHL8hdfzzb9MZ.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/13Pm-q8UTpbYlf_KtJOOUHL8hdfzzb9MZ.jpg" alt="Turquoise Verona"></div>
+             <div class="cap">Turquoise Verona</div>
+           </a>
+<a class="card" data-title="forest verona" href="/patterns/one/1uEDw0goIaf99zTmsG42ido07xsAkStfn.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1uEDw0goIaf99zTmsG42ido07xsAkStfn.jpg" alt="Forest Verona"></div>
+             <div class="cap">Forest Verona</div>
+           </a>
+<a class="card" data-title="purple &amp; gold honore" href="/patterns/one/1hAkrqdsfqBpUSJndAD2YxEbGMn7GIooD.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1hAkrqdsfqBpUSJndAD2YxEbGMn7GIooD.jpg" alt="Purple &amp; gold honore"></div>
+             <div class="cap">Purple &amp; gold honore</div>
+           </a>
+<a class="card" data-title="oyster verona" href="/patterns/one/1o_daVJa9yS0ogadfnU6xbayefdMCxYvq.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1o_daVJa9yS0ogadfnU6xbayefdMCxYvq.jpg" alt="Oyster Verona"></div>
+             <div class="cap">Oyster Verona</div>
+           </a>
+<a class="card" data-title="blue and gold honore" href="/patterns/one/1lflmf-5tpYc7UIa1dDKaX9rRPnKGpXss.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1lflmf-5tpYc7UIa1dDKaX9rRPnKGpXss.jpg" alt="Blue and gold honore"></div>
+             <div class="cap">Blue and gold honore</div>
+           </a>
+<a class="card" data-title="red clover hearts" href="/patterns/one/15UbPJJP0IS-69pQ4_VTPKMsBLMmaanlP.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/15UbPJJP0IS-69pQ4_VTPKMsBLMmaanlP.jpg" alt="Red clover hearts"></div>
+             <div class="cap">Red clover hearts</div>
+           </a>
+<a class="card" data-title="black diamonds" href="/patterns/one/19fQUaRdmd5xceF2dYsHxCyGOMnHs_rjT.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/19fQUaRdmd5xceF2dYsHxCyGOMnHs_rjT.jpg" alt="Black diamonds"></div>
+             <div class="cap">Black diamonds</div>
+           </a>
+<a class="card" data-title="terracotta bulgaria" href="/patterns/one/1UBORVmrUp9pxeKusFAySavbsM7XteA1a.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1UBORVmrUp9pxeKusFAySavbsM7XteA1a.jpg" alt="Terracotta Bulgaria"></div>
+             <div class="cap">Terracotta Bulgaria</div>
+           </a>
+<a class="card" data-title="purple bulgaria" href="/patterns/one/11TJv4yc8seyHmkZ9liQlcnVf9r6ZDdpk.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/11TJv4yc8seyHmkZ9liQlcnVf9r6ZDdpk.jpg" alt="Purple Bulgaria"></div>
+             <div class="cap">Purple Bulgaria</div>
+           </a>
+<a class="card" data-title="black &amp; gold honore" href="/patterns/one/1JRlHYPeD3pP3RFlzybi7Xh0NlLsuocMT.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1JRlHYPeD3pP3RFlzybi7Xh0NlLsuocMT.jpg" alt="Black &amp; gold honore"></div>
+             <div class="cap">Black &amp; gold honore</div>
+           </a>
+<a class="card" data-title="aqua clover hearts" href="/patterns/one/1a8HfZOrs1gcIpsbqz7olryEJ_kw_iCjs.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1a8HfZOrs1gcIpsbqz7olryEJ_kw_iCjs.jpg" alt="Aqua clover hearts"></div>
+             <div class="cap">Aqua clover hearts</div>
+           </a>
+<a class="card" data-title="navy verona (versailles)" href="/patterns/one/1W4-xJRTTPcGQRhTiDtyB3OMry9YxsmE5.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1W4-xJRTTPcGQRhTiDtyB3OMry9YxsmE5.jpg" alt="Navy Verona (Versailles)"></div>
+             <div class="cap">Navy Verona (Versailles)</div>
+           </a></div>
+      </section>
+
+      <section id="sec-onehalf" class="section">
+        <div class="section-head">
+          <h2>1.5&quot; Collars</h2>
+          <span class="count">125 patterns</span>
+        </div>
+        <div class="grid"><a class="card" data-title="img_1549" href="/patterns/onehalf/1_o7z1Z1SFQ2p8vHaCR1bJ_8k5Ogw3ft4.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1_o7z1Z1SFQ2p8vHaCR1bJ_8k5Ogw3ft4.jpg" alt="IMG_1549"></div>
+             <div class="cap">IMG_1549</div>
+           </a>
+<a class="card" data-title="img_1551" href="/patterns/onehalf/1Y9s1ZBr7JeCUFC3FGHRxfBEcAsc6FqFo.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1Y9s1ZBr7JeCUFC3FGHRxfBEcAsc6FqFo.jpg" alt="IMG_1551"></div>
+             <div class="cap">IMG_1551</div>
+           </a>
+<a class="card" data-title="80033109386__9963d44c-0425-4120-8489-290269d21664" href="/patterns/onehalf/1PHOedWotehIR88gfXc4GB_wjgKuvttbT.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1PHOedWotehIR88gfXc4GB_wjgKuvttbT.jpg" alt="80033109386__9963D44C-0425-4120-8489-290269D21664"></div>
+             <div class="cap">80033109386__9963D44C-0425-4120-8489-290269D21664</div>
+           </a>
+<a class="card" data-title="img_1550" href="/patterns/onehalf/1HMTpUdom8XEJ9oOUEwvPkDHyGZvxBsfv.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1HMTpUdom8XEJ9oOUEwvPkDHyGZvxBsfv.jpg" alt="IMG_1550"></div>
+             <div class="cap">IMG_1550</div>
+           </a>
+<a class="card" data-title="img_2346" href="/patterns/onehalf/1t8ahDaXjxin8WB6f9a6Uoqai_MhHUSLr.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1t8ahDaXjxin8WB6f9a6Uoqai_MhHUSLr.jpg" alt="IMG_2346"></div>
+             <div class="cap">IMG_2346</div>
+           </a>
+<a class="card" data-title="img_2809" href="/patterns/onehalf/1FHT6_ETaTD3tX-Uj1VLti5_QpNMhznDX.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1FHT6_ETaTD3tX-Uj1VLti5_QpNMhznDX.jpg" alt="IMG_2809"></div>
+             <div class="cap">IMG_2809</div>
+           </a>
+<a class="card" data-title="img_2810" href="/patterns/onehalf/1ObWphgRibriQ_gp2Tihi1H52ooDjKXsG.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1ObWphgRibriQ_gp2Tihi1H52ooDjKXsG.jpg" alt="IMG_2810"></div>
+             <div class="cap">IMG_2810</div>
+           </a>
+<a class="card" data-title="img_2242" href="/patterns/onehalf/15zHzv1ONNjWWxAHL19y4Fk1NRZubvCJR.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/15zHzv1ONNjWWxAHL19y4Fk1NRZubvCJR.jpg" alt="IMG_2242"></div>
+             <div class="cap">IMG_2242</div>
+           </a>
+<a class="card" data-title="fwk_0799" href="/patterns/onehalf/16shAtyo3Q9TT9ViMvOWP2t4V5tH1zh6v.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/16shAtyo3Q9TT9ViMvOWP2t4V5tH1zh6v.jpg" alt="FWK_0799"></div>
+             <div class="cap">FWK_0799</div>
+           </a>
+<a class="card" data-title="fwk_0798" href="/patterns/onehalf/1B8_ukvyW3nV-8INY8pJ6ISGM6jybiIj7.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1B8_ukvyW3nV-8INY8pJ6ISGM6jybiIj7.jpg" alt="FWK_0798"></div>
+             <div class="cap">FWK_0798</div>
+           </a>
+<a class="card" data-title="glimmer" href="/patterns/onehalf/1viyGRWU1bOdK573EXeclocAJP0_CmRc4.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1viyGRWU1bOdK573EXeclocAJP0_CmRc4.jpg" alt="Glimmer"></div>
+             <div class="cap">Glimmer</div>
+           </a>
+<a class="card" data-title="amadeus" href="/patterns/onehalf/1aJZk6CdiEHHsG00LBcfMJSdQtbcVoOgU.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1aJZk6CdiEHHsG00LBcfMJSdQtbcVoOgU.jpg" alt="Amadeus"></div>
+             <div class="cap">Amadeus</div>
+           </a>
+<a class="card" data-title="barista" href="/patterns/onehalf/1QMw_cQHRYFk4KSeaRnJlO9W87Aq9Cjk8.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1QMw_cQHRYFk4KSeaRnJlO9W87Aq9Cjk8.jpg" alt="Barista"></div>
+             <div class="cap">Barista</div>
+           </a>
+<a class="card" data-title="1.5” floral evening" href="/patterns/onehalf/1KDeF2GWMEswxE0RYYQUinEN0hyLXwT_-.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1KDeF2GWMEswxE0RYYQUinEN0hyLXwT_-.jpg" alt="1.5” Floral Evening"></div>
+             <div class="cap">1.5” Floral Evening</div>
+           </a>
+<a class="card" data-title="1.5” goldenrod" href="/patterns/onehalf/1EoxBrGXftyZVtziKdxm_5veDmIOoPtoF.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1EoxBrGXftyZVtziKdxm_5veDmIOoPtoF.jpg" alt="1.5” Goldenrod"></div>
+             <div class="cap">1.5” Goldenrod</div>
+           </a>
+<a class="card" data-title="1.5” violet obsession" href="/patterns/onehalf/1HiZubY3DiUd-rn2bEkd8wuMNbqGngLs-.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1HiZubY3DiUd-rn2bEkd8wuMNbqGngLs-.jpg" alt="1.5” Violet Obsession"></div>
+             <div class="cap">1.5” Violet Obsession</div>
+           </a>
+<a class="card" data-title="best buds" href="/patterns/onehalf/1IgL0Keyo79t7KcxaL6JcMr_RrzPx_ih5.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1IgL0Keyo79t7KcxaL6JcMr_RrzPx_ih5.jpg" alt="Best buds"></div>
+             <div class="cap">Best buds</div>
+           </a>
+<a class="card" data-title="nature's capulet" href="/patterns/onehalf/1b5Ky2W32SvGkjK-j_XvIqs9RWUUsvzFE.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1b5Ky2W32SvGkjK-j_XvIqs9RWUUsvzFE.jpg" alt="Nature's Capulet"></div>
+             <div class="cap">Nature's Capulet</div>
+           </a>
+<a class="card" data-title="star-crossed capulet" href="/patterns/onehalf/1B1gT1X8ryUBS9r2VMnXTvonzAG84H1l-.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1B1gT1X8ryUBS9r2VMnXTvonzAG84H1l-.jpg" alt="Star-Crossed Capulet"></div>
+             <div class="cap">Star-Crossed Capulet</div>
+           </a>
+<a class="card" data-title="maroon prowler" href="/patterns/onehalf/1tbqirvdt4OfS-YSyCCW_YifBREWSiREV.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1tbqirvdt4OfS-YSyCCW_YifBREWSiREV.jpg" alt="Maroon prowler"></div>
+             <div class="cap">Maroon prowler</div>
+           </a>
+<a class="card" data-title="midnight capulet" href="/patterns/onehalf/1V54CFVbtNI2b6Q760s__BIc-mI1vDGGC.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1V54CFVbtNI2b6Q760s__BIc-mI1vDGGC.jpg" alt="Midnight Capulet"></div>
+             <div class="cap">Midnight Capulet</div>
+           </a>
+<a class="card" data-title="regal capulet" href="/patterns/onehalf/1O2FvxE3i-jWo-dvzvRWpDW4fukE5Z1gW.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1O2FvxE3i-jWo-dvzvRWpDW4fukE5Z1gW.jpg" alt="Regal Capulet"></div>
+             <div class="cap">Regal Capulet</div>
+           </a>
+<a class="card" data-title="yonder capulet" href="/patterns/onehalf/1VQjclAoPgHSVacysN3bNkE8OmujvQXau.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1VQjclAoPgHSVacysN3bNkE8OmujvQXau.jpg" alt="Yonder Capulet"></div>
+             <div class="cap">Yonder Capulet</div>
+           </a>
+<a class="card" data-title="jade valhalla" href="/patterns/onehalf/1kQCnC9_LH6re5U6oWjVhZdvS0TTwdBgx.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1kQCnC9_LH6re5U6oWjVhZdvS0TTwdBgx.jpg" alt="Jade Valhalla"></div>
+             <div class="cap">Jade Valhalla</div>
+           </a>
+<a class="card" data-title="fwk_0398" href="/patterns/onehalf/1OLAXVULeHuciLsqxhdS7po_vGG0PA9QI.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1OLAXVULeHuciLsqxhdS7po_vGG0PA9QI.jpg" alt="FWK_0398"></div>
+             <div class="cap">FWK_0398</div>
+           </a>
+<a class="card" data-title="img_4665" href="/patterns/onehalf/1SBlAzQap3KDyf-7ilfEU7Ilurp3tN39b.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1SBlAzQap3KDyf-7ilfEU7Ilurp3tN39b.jpg" alt="IMG_4665"></div>
+             <div class="cap">IMG_4665</div>
+           </a>
+<a class="card" data-title="img_4655" href="/patterns/onehalf/1HrJWF19F7GITHpM-MMWnN5suKd9YNYFX.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1HrJWF19F7GITHpM-MMWnN5suKd9YNYFX.jpg" alt="IMG_4655"></div>
+             <div class="cap">IMG_4655</div>
+           </a>
+<a class="card" data-title="1.5” sweetheart" href="/patterns/onehalf/1G5gez03gFPAohp7zlUuDOEUzIPR3DQ7z.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1G5gez03gFPAohp7zlUuDOEUzIPR3DQ7z.jpg" alt="1.5” Sweetheart"></div>
+             <div class="cap">1.5” Sweetheart</div>
+           </a>
+<a class="card" data-title="1.5” night bloom" href="/patterns/onehalf/1QAytCrSOJ65ajNPjQtHBwWRAnwg20Lv1.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1QAytCrSOJ65ajNPjQtHBwWRAnwg20Lv1.jpg" alt="1.5” Night Bloom"></div>
+             <div class="cap">1.5” Night Bloom</div>
+           </a>
+<a class="card" data-title="1.5” robin’s nest" href="/patterns/onehalf/1AbO-ktERj8GW0J3x6V0YDk7-qoXmwNpv.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1AbO-ktERj8GW0J3x6V0YDk7-qoXmwNpv.jpg" alt="1.5” Robin’s Nest"></div>
+             <div class="cap">1.5” Robin’s Nest</div>
+           </a>
+<a class="card" data-title="peacock valhalla" href="/patterns/onehalf/13aRtll6F2s8J7ZI_akLctH7g5ChB98qE.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/13aRtll6F2s8J7ZI_akLctH7g5ChB98qE.jpg" alt="Peacock Valhalla"></div>
+             <div class="cap">Peacock Valhalla</div>
+           </a>
+<a class="card" data-title="citrine bloom" href="/patterns/onehalf/19et2p0m1nuDcNDd_iiSDyhknTf9Ax5a6.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/19et2p0m1nuDcNDd_iiSDyhknTf9Ax5a6.jpg" alt="Citrine Bloom"></div>
+             <div class="cap">Citrine Bloom</div>
+           </a>
+<a class="card" data-title="masquerade" href="/patterns/onehalf/112XMiav2JmtnvYkVy3dySgHyKQEk_itp.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/112XMiav2JmtnvYkVy3dySgHyKQEk_itp.jpg" alt="Masquerade"></div>
+             <div class="cap">Masquerade</div>
+           </a>
+<a class="card" data-title="onyx baroque" href="/patterns/onehalf/1ucbUXhtLyWTQgzdR-2DZaDz9N3piGlFk.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1ucbUXhtLyWTQgzdR-2DZaDz9N3piGlFk.jpg" alt="Onyx Baroque"></div>
+             <div class="cap">Onyx Baroque</div>
+           </a>
+<a class="card" data-title="floral path" href="/patterns/onehalf/1bhIcaRyPKXTuWMKoNo0ybWPsbBDnCp8D.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1bhIcaRyPKXTuWMKoNo0ybWPsbBDnCp8D.jpg" alt="Floral Path"></div>
+             <div class="cap">Floral Path</div>
+           </a>
+<a class="card" data-title="honey valhalla" href="/patterns/onehalf/1JQiAaV8xwhzUfn38THpptKDHZyHodagc.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1JQiAaV8xwhzUfn38THpptKDHZyHodagc.jpg" alt="Honey Valhalla"></div>
+             <div class="cap">Honey Valhalla</div>
+           </a>
+<a class="card" data-title="ophelia" href="/patterns/onehalf/1NhGYBBHpzkM0WI_Wys6PVUquzYmeZIQC.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1NhGYBBHpzkM0WI_Wys6PVUquzYmeZIQC.jpg" alt="Ophelia"></div>
+             <div class="cap">Ophelia</div>
+           </a>
+<a class="card" data-title="midnight bulgaria" href="/patterns/onehalf/1TR1YgHIBdFu_VZF0rS_epiaP3CAnwSMK.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1TR1YgHIBdFu_VZF0rS_epiaP3CAnwSMK.jpg" alt="Midnight bulgaria"></div>
+             <div class="cap">Midnight bulgaria</div>
+           </a>
+<a class="card" data-title="img_1260" href="/patterns/onehalf/1r-dF3CIBOh40EwN6veBczDc3b02HkAL9.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1r-dF3CIBOh40EwN6veBczDc3b02HkAL9.jpg" alt="IMG_1260"></div>
+             <div class="cap">IMG_1260</div>
+           </a>
+<a class="card" data-title="img_6525" href="/patterns/onehalf/132V_ZnrDuHPf9PaFYSmYqekS_pmBFwiZ.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/132V_ZnrDuHPf9PaFYSmYqekS_pmBFwiZ.jpg" alt="IMG_6525"></div>
+             <div class="cap">IMG_6525</div>
+           </a>
+<a class="card" data-title="img_1261" href="/patterns/onehalf/1nyv_Uovmh8yc1gN1E45FP4RvwWAFZs9a.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1nyv_Uovmh8yc1gN1E45FP4RvwWAFZs9a.jpg" alt="IMG_1261"></div>
+             <div class="cap">IMG_1261</div>
+           </a>
+<a class="card" data-title="zen garden" href="/patterns/onehalf/144y7L9qJ9EqzcGCTdpre7j4WFIVnj0IW.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/144y7L9qJ9EqzcGCTdpre7j4WFIVnj0IW.jpg" alt="Zen Garden"></div>
+             <div class="cap">Zen Garden</div>
+           </a>
+<a class="card" data-title="1.5” athena" href="/patterns/onehalf/1NhWfEJyrqu5z77mJaR3d8VOQmb_w1DnK.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1NhWfEJyrqu5z77mJaR3d8VOQmb_w1DnK.jpg" alt="1.5” Athena"></div>
+             <div class="cap">1.5” Athena</div>
+           </a>
+<a class="card" data-title="1.5” dynasty" href="/patterns/onehalf/1-Y20nLA-fZtFQYmph6F3z6L0RwxxE1Tr.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1-Y20nLA-fZtFQYmph6F3z6L0RwxxE1Tr.jpg" alt="1.5” Dynasty"></div>
+             <div class="cap">1.5” Dynasty</div>
+           </a>
+<a class="card" data-title="belle’s temptation" href="/patterns/onehalf/1qOi6Dm4ZlZplnMasrSMBgMbR8iCrKjhw.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1qOi6Dm4ZlZplnMasrSMBgMbR8iCrKjhw.jpg" alt="Belle’s Temptation"></div>
+             <div class="cap">Belle’s Temptation</div>
+           </a>
+<a class="card" data-title="silver irises" href="/patterns/onehalf/16ms2ZWc9SIJm83sR7RH60jCJ5WsXGVEo.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/16ms2ZWc9SIJm83sR7RH60jCJ5WsXGVEo.jpg" alt="Silver irises"></div>
+             <div class="cap">Silver irises</div>
+           </a>
+<a class="card" data-title="pomegranate valhalla" href="/patterns/onehalf/1MnzHTpFDPEE8DsRonGZQgADFveolGc6c.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1MnzHTpFDPEE8DsRonGZQgADFveolGc6c.jpg" alt="Pomegranate Valhalla"></div>
+             <div class="cap">Pomegranate Valhalla</div>
+           </a>
+<a class="card" data-title="red nouvelle" href="/patterns/onehalf/1nXBARW4YEaeVzYnKr9EWVm09dnCJUX3x.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1nXBARW4YEaeVzYnKr9EWVm09dnCJUX3x.jpg" alt="Red Nouvelle"></div>
+             <div class="cap">Red Nouvelle</div>
+           </a>
+<a class="card" data-title="crimson valhalla" href="/patterns/onehalf/1yuW5V7LAsbc_QiBW48XxOOieHOiNfTaJ.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1yuW5V7LAsbc_QiBW48XxOOieHOiNfTaJ.jpg" alt="Crimson Valhalla"></div>
+             <div class="cap">Crimson Valhalla</div>
+           </a>
+<a class="card" data-title="img_4209" href="/patterns/onehalf/1iJqW1GzoUrijslXbqXazRAlRZRqg4qZv.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1iJqW1GzoUrijslXbqXazRAlRZRqg4qZv.jpg" alt="IMG_4209"></div>
+             <div class="cap">IMG_4209</div>
+           </a>
+<a class="card" data-title="cardinal baroque" href="/patterns/onehalf/1u0d_2BNMX61a0eplBlVbYl1nyGBoWjBG.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1u0d_2BNMX61a0eplBlVbYl1nyGBoWjBG.jpg" alt="Cardinal Baroque"></div>
+             <div class="cap">Cardinal Baroque</div>
+           </a>
+<a class="card" data-title="emerald milano" href="/patterns/onehalf/1KLU1oc3WhEgZELOl7qZqhS2u1X8hJLj-.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1KLU1oc3WhEgZELOl7qZqhS2u1X8hJLj-.jpg" alt="Emerald Milano"></div>
+             <div class="cap">Emerald Milano</div>
+           </a>
+<a class="card" data-title="cobalt baroque" href="/patterns/onehalf/1swNZQbpy-bIOxW4U_ZPmN2jZVYYLE6i0.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1swNZQbpy-bIOxW4U_ZPmN2jZVYYLE6i0.jpg" alt="Cobalt Baroque"></div>
+             <div class="cap">Cobalt Baroque</div>
+           </a>
+<a class="card" data-title="navyclassique" href="/patterns/onehalf/1NLv-Cy1TMWvBn14AuE3Xn3CHQu-XTKy1.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1NLv-Cy1TMWvBn14AuE3Xn3CHQu-XTKy1.jpg" alt="NavyClassique"></div>
+             <div class="cap">NavyClassique</div>
+           </a>
+<a class="card" data-title="kellygreenclassique" href="/patterns/onehalf/1R5xZafarCff4_X3xiwn794LFnxrSvCum.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1R5xZafarCff4_X3xiwn794LFnxrSvCum.jpg" alt="KellyGreenClassique"></div>
+             <div class="cap">KellyGreenClassique</div>
+           </a>
+<a class="card" data-title="redguard" href="/patterns/onehalf/1dtyVFNqizileH9-WNqIeSufQ7jF_w0h7.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1dtyVFNqizileH9-WNqIeSufQ7jF_w0h7.jpg" alt="RedGuard"></div>
+             <div class="cap">RedGuard</div>
+           </a>
+<a class="card" data-title="cobalt andersen" href="/patterns/onehalf/1e3gxzKUHd5d_cHCZ7McO1D0vXZ12hGbk.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1e3gxzKUHd5d_cHCZ7McO1D0vXZ12hGbk.jpg" alt="Cobalt Andersen"></div>
+             <div class="cap">Cobalt Andersen</div>
+           </a>
+<a class="card" data-title="teal nouvelle" href="/patterns/onehalf/1CAlmllxxRuC6qBr_BL3g6HVGADiZVJez.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1CAlmllxxRuC6qBr_BL3g6HVGADiZVJez.jpg" alt="Teal Nouvelle"></div>
+             <div class="cap">Teal Nouvelle</div>
+           </a>
+<a class="card" data-title="pink nouvelle" href="/patterns/onehalf/1WqixwDZGmAPrU6-UsSYQRV6wH46C0_rk.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1WqixwDZGmAPrU6-UsSYQRV6wH46C0_rk.jpg" alt="Pink nouvelle"></div>
+             <div class="cap">Pink nouvelle</div>
+           </a>
+<a class="card" data-title="teal andersen" href="/patterns/onehalf/1hspjvC-zBneQApojXK0DmdvgmJTlNOlI.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1hspjvC-zBneQApojXK0DmdvgmJTlNOlI.jpg" alt="Teal andersen"></div>
+             <div class="cap">Teal andersen</div>
+           </a>
+<a class="card" data-title="platinum nouvelle" href="/patterns/onehalf/1rJ7n9NT8NW8nvrNH49If9uN_GgbQZCDr.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1rJ7n9NT8NW8nvrNH49If9uN_GgbQZCDr.jpg" alt="Platinum Nouvelle"></div>
+             <div class="cap">Platinum Nouvelle</div>
+           </a>
+<a class="card" data-title="gilded in green" href="/patterns/onehalf/1nHRFMDT9gZgUGscP-ICMV0Tih70Ntiwc.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1nHRFMDT9gZgUGscP-ICMV0Tih70Ntiwc.jpg" alt="Gilded in Green"></div>
+             <div class="cap">Gilded in Green</div>
+           </a>
+<a class="card" data-title="seafoam andersen" href="/patterns/onehalf/1rcsUwFkgzeUmKNoIyaGAuPZ_a7PFbk8U.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1rcsUwFkgzeUmKNoIyaGAuPZ_a7PFbk8U.jpg" alt="Seafoam Andersen"></div>
+             <div class="cap">Seafoam Andersen</div>
+           </a>
+<a class="card" data-title="purple bulgaria 1.5”" href="/patterns/onehalf/13e1ncobgtQ0w22zonr0al1JMTA1qajlI.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/13e1ncobgtQ0w22zonr0al1JMTA1qajlI.jpg" alt="Purple Bulgaria 1.5”"></div>
+             <div class="cap">Purple Bulgaria 1.5”</div>
+           </a>
+<a class="card" data-title="copper squares" href="/patterns/onehalf/1JXJOwkXKPx8i4x1tJNYxBVNM65s8brHk.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1JXJOwkXKPx8i4x1tJNYxBVNM65s8brHk.jpg" alt="Copper Squares"></div>
+             <div class="cap">Copper Squares</div>
+           </a>
+<a class="card" data-title="city of lights" href="/patterns/onehalf/19yzaII15KQY8s8vINxCEVrePkssZw8C2.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/19yzaII15KQY8s8vINxCEVrePkssZw8C2.jpg" alt="City of Lights"></div>
+             <div class="cap">City of Lights</div>
+           </a>
+<a class="card" data-title="garden paisley" href="/patterns/onehalf/16cUX3E7MKNewF5UktvIYqhgAVuXT3HUQ.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/16cUX3E7MKNewF5UktvIYqhgAVuXT3HUQ.jpg" alt="Garden Paisley"></div>
+             <div class="cap">Garden Paisley</div>
+           </a>
+<a class="card" data-title="gilded in black" href="/patterns/onehalf/1Dojn79J7NRuR3G288Qgx2k4I4Gx7vyjD.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1Dojn79J7NRuR3G288Qgx2k4I4Gx7vyjD.jpg" alt="Gilded in Black"></div>
+             <div class="cap">Gilded in Black</div>
+           </a>
+<a class="card" data-title="orange baccarat" href="/patterns/onehalf/1FOSq7M0CqoWxy36uQ6T9bzmDw9jzAObn.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1FOSq7M0CqoWxy36uQ6T9bzmDw9jzAObn.jpg" alt="Orange Baccarat"></div>
+             <div class="cap">Orange Baccarat</div>
+           </a>
+<a class="card" data-title="starfall" href="/patterns/onehalf/1m2JRSDPGr8desY64h5MymAYGytZ9cd0L.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1m2JRSDPGr8desY64h5MymAYGytZ9cd0L.jpg" alt="Starfall"></div>
+             <div class="cap">Starfall</div>
+           </a>
+<a class="card" data-title="purple baccarat" href="/patterns/onehalf/1pkVdwMb8glK8tE_wVf-1t-Fax9fvN3Um.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1pkVdwMb8glK8tE_wVf-1t-Fax9fvN3Um.jpg" alt="Purple Baccarat"></div>
+             <div class="cap">Purple Baccarat</div>
+           </a>
+<a class="card" data-title="strut your stuff 1.5”" href="/patterns/onehalf/1ConeQNzUE_x4Lw6gAXsfspFopa7UgF45.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1ConeQNzUE_x4Lw6gAXsfspFopa7UgF45.jpg" alt="Strut Your Stuff 1.5”"></div>
+             <div class="cap">Strut Your Stuff 1.5”</div>
+           </a>
+<a class="card" data-title="royal blue clover hearts" href="/patterns/onehalf/1C0xfxgiFYi31DP2BMuWF8EoyrborkTrE.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1C0xfxgiFYi31DP2BMuWF8EoyrborkTrE.jpg" alt="Royal Blue Clover Hearts"></div>
+             <div class="cap">Royal Blue Clover Hearts</div>
+           </a>
+<a class="card" data-title="1.5” terracotta bulgaria" href="/patterns/onehalf/17mQtDS4gsUyACqFZBaVWXl1iFDlkcw6R.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/17mQtDS4gsUyACqFZBaVWXl1iFDlkcw6R.jpg" alt="1.5” Terracotta Bulgaria"></div>
+             <div class="cap">1.5” Terracotta Bulgaria</div>
+           </a>
+<a class="card" data-title="veneto verona" href="/patterns/onehalf/1epS2vgWAjaigqC1nEglC1OtaK1EfnrC2.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1epS2vgWAjaigqC1nEglC1OtaK1EfnrC2.jpg" alt="Veneto Verona"></div>
+             <div class="cap">Veneto Verona</div>
+           </a>
+<a class="card" data-title="1.5” canterbury" href="/patterns/onehalf/1ZlEGIm0QRoqIncELKPvS7zGuVdXV8ZAS.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1ZlEGIm0QRoqIncELKPvS7zGuVdXV8ZAS.jpg" alt="1.5” Canterbury"></div>
+             <div class="cap">1.5” Canterbury</div>
+           </a>
+<a class="card" data-title="green nouvelle" href="/patterns/onehalf/1fdJAB7pUQ3KUxHPYVWgmnExJhk4swCZ5.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1fdJAB7pUQ3KUxHPYVWgmnExJhk4swCZ5.jpg" alt="Green nouvelle"></div>
+             <div class="cap">Green nouvelle</div>
+           </a>
+<a class="card" data-title="lakewood" href="/patterns/onehalf/1-Tpx47766-gCH3SoduKKIy3ITEfe3v22.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1-Tpx47766-gCH3SoduKKIy3ITEfe3v22.jpg" alt="Lakewood"></div>
+             <div class="cap">Lakewood</div>
+           </a>
+<a class="card" data-title="ruby bijoux" href="/patterns/onehalf/1lzVnEkPjZ_Selj6fViD4y1l5u7YwpFFO.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1lzVnEkPjZ_Selj6fViD4y1l5u7YwpFFO.jpg" alt="Ruby Bijoux"></div>
+             <div class="cap">Ruby Bijoux</div>
+           </a>
+<a class="card" data-title="gilded in purple 1.5&quot;" href="/patterns/onehalf/1nESAIUtHe0YQ0j0Y1NeqnMANmjB8dN--.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1nESAIUtHe0YQ0j0Y1NeqnMANmjB8dN--.jpg" alt="Gilded in purple 1.5&quot;"></div>
+             <div class="cap">Gilded in purple 1.5&quot;</div>
+           </a>
+<a class="card" data-title="orange croix" href="/patterns/onehalf/1Y_ddh4j4ffFqDGc1NDELko2TT2A8LiHm.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1Y_ddh4j4ffFqDGc1NDELko2TT2A8LiHm.jpg" alt="Orange Croix"></div>
+             <div class="cap">Orange Croix</div>
+           </a>
+<a class="card" data-title="royal nouvelle" href="/patterns/onehalf/1TtThbr7ZjlY79drE-zZmq755C1MjgSLl.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1TtThbr7ZjlY79drE-zZmq755C1MjgSLl.jpg" alt="Royal nouvelle"></div>
+             <div class="cap">Royal nouvelle</div>
+           </a>
+<a class="card" data-title="gilded in blue 1.5&quot;" href="/patterns/onehalf/1SR8o67qWDB4CDIg42ohz0UCMYaVrvDz7.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1SR8o67qWDB4CDIg42ohz0UCMYaVrvDz7.jpg" alt="Gilded in Blue 1.5&quot;"></div>
+             <div class="cap">Gilded in Blue 1.5&quot;</div>
+           </a>
+<a class="card" data-title="blackjack" href="/patterns/onehalf/1seqoaBbuQnA0hpJcTE7Hm7UHfiKQfp49.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1seqoaBbuQnA0hpJcTE7Hm7UHfiKQfp49.jpg" alt="Blackjack"></div>
+             <div class="cap">Blackjack</div>
+           </a>
+<a class="card" data-title="baxter" href="/patterns/onehalf/1ZRwwbrEpWhXHNAAWLooZWkDSp_qwu9w7.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1ZRwwbrEpWhXHNAAWLooZWkDSp_qwu9w7.jpg" alt="Baxter"></div>
+             <div class="cap">Baxter</div>
+           </a>
+<a class="card" data-title="stone and chocolate croix" href="/patterns/onehalf/1Oy3XJGpV2gsGUsS0XMlB5vmpOns9O8Ag.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1Oy3XJGpV2gsGUsS0XMlB5vmpOns9O8Ag.jpg" alt="Stone and chocolate Croix"></div>
+             <div class="cap">Stone and chocolate Croix</div>
+           </a>
+<a class="card" data-title="circles in champagne" href="/patterns/onehalf/1AIrWL9v3LTtg-IRYL_8wWTVDNC5SlouJ.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1AIrWL9v3LTtg-IRYL_8wWTVDNC5SlouJ.jpg" alt="Circles in champagne"></div>
+             <div class="cap">Circles in champagne</div>
+           </a>
+<a class="card" data-title="teal venetian" href="/patterns/onehalf/1P2k3DuPRZEcDpdzOawv1T1omnTSlsp1S.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1P2k3DuPRZEcDpdzOawv1T1omnTSlsp1S.jpg" alt="Teal Venetian"></div>
+             <div class="cap">Teal Venetian</div>
+           </a>
+<a class="card" data-title="kiwi kerala" href="/patterns/onehalf/1f6IJBFi2I0_X7IpaFWpbkGWrDqriAehd.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1f6IJBFi2I0_X7IpaFWpbkGWrDqriAehd.jpg" alt="Kiwi Kerala"></div>
+             <div class="cap">Kiwi Kerala</div>
+           </a>
+<a class="card" data-title="black and gold toulon" href="/patterns/onehalf/1B9f3wlep1NNmxYcpvKToUTDjE2Xd--vt.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1B9f3wlep1NNmxYcpvKToUTDjE2Xd--vt.jpg" alt="Black and gold Toulon"></div>
+             <div class="cap">Black and gold Toulon</div>
+           </a>
+<a class="card" data-title="steel kerala" href="/patterns/onehalf/1slouhSxQaLsN0KOSzyTpOMenS_q2oDgy.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1slouhSxQaLsN0KOSzyTpOMenS_q2oDgy.jpg" alt="Steel Kerala"></div>
+             <div class="cap">Steel Kerala</div>
+           </a>
+<a class="card" data-title="byerly" href="/patterns/onehalf/1gF8x6M1Y-PBjiGDoASYtSEJZNrDb1lT2.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1gF8x6M1Y-PBjiGDoASYtSEJZNrDb1lT2.jpg" alt="Byerly"></div>
+             <div class="cap">Byerly</div>
+           </a>
+<a class="card" data-title="lyrical" href="/patterns/onehalf/1-ivdRiLDVfmZkxNHRiKl8VJi-r4CqzSR.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1-ivdRiLDVfmZkxNHRiKl8VJi-r4CqzSR.jpg" alt="Lyrical"></div>
+             <div class="cap">Lyrical</div>
+           </a>
+<a class="card" data-title="circles in burgundy" href="/patterns/onehalf/19TI_eDYVnpVoXNlCblmPwuHBcSz97sWu.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/19TI_eDYVnpVoXNlCblmPwuHBcSz97sWu.jpg" alt="Circles in burgundy"></div>
+             <div class="cap">Circles in burgundy</div>
+           </a>
+<a class="card" data-title="celebration" href="/patterns/onehalf/14KW-dBNCwt6XwKrpZ85C4qwI-zj8CnqV.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/14KW-dBNCwt6XwKrpZ85C4qwI-zj8CnqV.jpg" alt="Celebration"></div>
+             <div class="cap">Celebration</div>
+           </a>
+<a class="card" data-title="electric blue toulon" href="/patterns/onehalf/1vwyZIBE_lDUGSER-rHkdzi7nu41igL1b.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1vwyZIBE_lDUGSER-rHkdzi7nu41igL1b.jpg" alt="Electric Blue Toulon"></div>
+             <div class="cap">Electric Blue Toulon</div>
+           </a>
+<a class="card" data-title="maroon spotlight" href="/patterns/onehalf/1WB-UBGOzzkRV5yxmVqpCVOEzmlneCiSI.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1WB-UBGOzzkRV5yxmVqpCVOEzmlneCiSI.jpg" alt="Maroon spotlight"></div>
+             <div class="cap">Maroon spotlight</div>
+           </a>
+<a class="card" data-title="red toulon" href="/patterns/onehalf/1OMD9cka-w4uLc37FEl21Yggi29y2oeti.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1OMD9cka-w4uLc37FEl21Yggi29y2oeti.jpg" alt="Red Toulon"></div>
+             <div class="cap">Red Toulon</div>
+           </a>
+<a class="card" data-title="aqua kerala" href="/patterns/onehalf/1eEJwSKqNZLcVdM3tAwRRZTchetWyAMkP.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1eEJwSKqNZLcVdM3tAwRRZTchetWyAMkP.jpg" alt="Aqua Kerala"></div>
+             <div class="cap">Aqua Kerala</div>
+           </a>
+<a class="card" data-title="purple croix" href="/patterns/onehalf/1yLx3yzXSoDEBGTWQzV36TlpE7KT_M85k.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1yLx3yzXSoDEBGTWQzV36TlpE7KT_M85k.jpg" alt="Purple Croix"></div>
+             <div class="cap">Purple Croix</div>
+           </a>
+<a class="card" data-title="royal blue bijoux" href="/patterns/onehalf/1qFwrd5aCzum1Olz13WoR2bfX7s7wJWTM.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1qFwrd5aCzum1Olz13WoR2bfX7s7wJWTM.jpg" alt="Royal Blue bijoux"></div>
+             <div class="cap">Royal Blue bijoux</div>
+           </a>
+<a class="card" data-title="magenta bijoux" href="/patterns/onehalf/1hRWQxY3zzUIQjiv2cIYY7wIyzp_fFQtX.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1hRWQxY3zzUIQjiv2cIYY7wIyzp_fFQtX.jpg" alt="Magenta bijoux"></div>
+             <div class="cap">Magenta bijoux</div>
+           </a>
+<a class="card" data-title="navy and orange bijoux" href="/patterns/onehalf/18RapyrOPi9rTCgI9U1sNDsynoyrhF9WL.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/18RapyrOPi9rTCgI9U1sNDsynoyrhF9WL.jpg" alt="Navy and Orange bijoux"></div>
+             <div class="cap">Navy and Orange bijoux</div>
+           </a>
+<a class="card" data-title="casablanca" href="/patterns/onehalf/1TvcEl-kI_Z560-5Utl1xvMLNktlrPsrN.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1TvcEl-kI_Z560-5Utl1xvMLNktlrPsrN.jpg" alt="Casablanca"></div>
+             <div class="cap">Casablanca</div>
+           </a>
+<a class="card" data-title="disco days" href="/patterns/onehalf/15UPGpXlOoxcpw2YPZGCtMUAdvgNVZX1K.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/15UPGpXlOoxcpw2YPZGCtMUAdvgNVZX1K.jpg" alt="Disco Days"></div>
+             <div class="cap">Disco Days</div>
+           </a>
+<a class="card" data-title="blue bijoux" href="/patterns/onehalf/1tmBHEmxdi-j2EEYDbGyEKX4oXZjfwZnJ.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1tmBHEmxdi-j2EEYDbGyEKX4oXZjfwZnJ.jpg" alt="Blue bijoux"></div>
+             <div class="cap">Blue bijoux</div>
+           </a>
+<a class="card" data-title="raspberry croix" href="/patterns/onehalf/1hczSEaLjfX6mm6YX2ts-F0nsozGe5nUI.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1hczSEaLjfX6mm6YX2ts-F0nsozGe5nUI.jpg" alt="Raspberry Croix"></div>
+             <div class="cap">Raspberry Croix</div>
+           </a>
+<a class="card" data-title="aqua clover hearts 1.5&quot;" href="/patterns/onehalf/1wSsKAw4ZXquDbQMabn6YgfnonENeIqJg.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1wSsKAw4ZXquDbQMabn6YgfnonENeIqJg.jpg" alt="Aqua clover hearts 1.5&quot;"></div>
+             <div class="cap">Aqua clover hearts 1.5&quot;</div>
+           </a>
+<a class="card" data-title="red croix" href="/patterns/onehalf/1vC5tU4LYR4cehBRQXKiFGhlXDO1oC2f4.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1vC5tU4LYR4cehBRQXKiFGhlXDO1oC2f4.jpg" alt="Red Croix"></div>
+             <div class="cap">Red Croix</div>
+           </a>
+<a class="card" data-title="purple nouvelle" href="/patterns/onehalf/1zpDSlDlCSeFuqWn4YDK0sALbPc9xlGQ0.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1zpDSlDlCSeFuqWn4YDK0sALbPc9xlGQ0.jpg" alt="Purple nouvelle"></div>
+             <div class="cap">Purple nouvelle</div>
+           </a>
+<a class="card" data-title="teal toulon" href="/patterns/onehalf/1qdHvMfmN2FVZpSldY1S4ADF4WtK_71Vl.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1qdHvMfmN2FVZpSldY1S4ADF4WtK_71Vl.jpg" alt="Teal Toulon"></div>
+             <div class="cap">Teal Toulon</div>
+           </a>
+<a class="card" data-title="aqua croix" href="/patterns/onehalf/1Znk4LJ9Dfwndi54LWzOmDLPmilGoFwqE.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1Znk4LJ9Dfwndi54LWzOmDLPmilGoFwqE.jpg" alt="Aqua Croix"></div>
+             <div class="cap">Aqua Croix</div>
+           </a>
+<a class="card" data-title="blush kerala" href="/patterns/onehalf/1aVhWFVe4DFP-JWbeQERuCsXmz7We6aTk.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1aVhWFVe4DFP-JWbeQERuCsXmz7We6aTk.jpg" alt="Blush Kerala"></div>
+             <div class="cap">Blush Kerala</div>
+           </a>
+<a class="card" data-title="teal bijoux" href="/patterns/onehalf/1v0XrCpr0aqaZrgodga1mnI7duNjejMsk.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1v0XrCpr0aqaZrgodga1mnI7duNjejMsk.jpg" alt="Teal bijoux"></div>
+             <div class="cap">Teal bijoux</div>
+           </a>
+<a class="card" data-title="vivid pink kerala" href="/patterns/onehalf/133C3exBw1NNR16gWrAljBfb4wmoXPz9x.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/133C3exBw1NNR16gWrAljBfb4wmoXPz9x.jpg" alt="Vivid pink Kerala"></div>
+             <div class="cap">Vivid pink Kerala</div>
+           </a>
+<a class="card" data-title="golden maltese cross" href="/patterns/onehalf/1tOfsTPDqR87KR-sIGTh92YQA9JRLspqj.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1tOfsTPDqR87KR-sIGTh92YQA9JRLspqj.jpg" alt="Golden Maltese cross"></div>
+             <div class="cap">Golden Maltese cross</div>
+           </a>
+<a class="card" data-title="purple domes" href="/patterns/onehalf/1pAiLxAHJxZ0V807ckIhN8kcKtKo1N-Kk.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1pAiLxAHJxZ0V807ckIhN8kcKtKo1N-Kk.jpg" alt="Purple domes"></div>
+             <div class="cap">Purple domes</div>
+           </a>
+<a class="card" data-title="purple toulon" href="/patterns/onehalf/1Jkq6wHhfjreiG3BYCCyhm3jBVDyLHZTO.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1Jkq6wHhfjreiG3BYCCyhm3jBVDyLHZTO.jpg" alt="Purple Toulon"></div>
+             <div class="cap">Purple Toulon</div>
+           </a>
+<a class="card" data-title="royal blue kerala" href="/patterns/onehalf/11BOoBHt8dd5U_X9qyJ_EL6AE2gfME5sO.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/11BOoBHt8dd5U_X9qyJ_EL6AE2gfME5sO.jpg" alt="Royal blue Kerala"></div>
+             <div class="cap">Royal blue Kerala</div>
+           </a>
+<a class="card" data-title="charcoal nouvelle" href="/patterns/onehalf/1t4O5H-hlRr29M-ZxlM4Gw5gmrj4uyLbK.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1t4O5H-hlRr29M-ZxlM4Gw5gmrj4uyLbK.jpg" alt="Charcoal nouvelle"></div>
+             <div class="cap">Charcoal nouvelle</div>
+           </a>
+<a class="card" data-title="sky blue nouvelle" href="/patterns/onehalf/14vt8Vwy41tCtaG70PNcqRYZEtVteDcQX.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/14vt8Vwy41tCtaG70PNcqRYZEtVteDcQX.jpg" alt="Sky Blue nouvelle"></div>
+             <div class="cap">Sky Blue nouvelle</div>
+           </a>
+<a class="card" data-title="fuchsia squares" href="/patterns/onehalf/1y8tiXGZvRnm_Of1gCe92ji_AU9Xh-fUl.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1y8tiXGZvRnm_Of1gCe92ji_AU9Xh-fUl.jpg" alt="Fuchsia squares"></div>
+             <div class="cap">Fuchsia squares</div>
+           </a>
+<a class="card" data-title="forest green croix" href="/patterns/onehalf/1m0ozkMKEund9SXsXo9mZDA4HpPwB9wQo.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1m0ozkMKEund9SXsXo9mZDA4HpPwB9wQo.jpg" alt="Forest green croix"></div>
+             <div class="cap">Forest green croix</div>
+           </a>
+<a class="card" data-title="1.5 teal kerala lsc front" href="/patterns/onehalf/1BwsZt8NZBTU6G6tNj_eEBPxzYmdP6Eu9.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1BwsZt8NZBTU6G6tNj_eEBPxzYmdP6Eu9.jpg" alt="1.5 teal kerala lsc front"></div>
+             <div class="cap">1.5 teal kerala lsc front</div>
+           </a>
+<a class="card" data-title="1.5 purple kerala lsc front" href="/patterns/onehalf/1AjFSsXpk3Qh8g6s8U8ZQRnNS29XnV_zP.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1AjFSsXpk3Qh8g6s8U8ZQRnNS29XnV_zP.jpg" alt="1.5 purple kerala lsc front"></div>
+             <div class="cap">1.5 purple kerala lsc front</div>
+           </a></div>
+      </section>
+
+      <section id="sec-prong" class="section">
+        <div class="section-head">
+          <h2>Prong Amounts</h2>
+          <span class="count">5 patterns</span>
+        </div>
+        <div class="grid"><a class="card" data-title="img_2943" href="/patterns/prong/1tqy6C5qE-A9fflNP99_OzTANBBXJjtWX.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1tqy6C5qE-A9fflNP99_OzTANBBXJjtWX.jpg" alt="IMG_2943"></div>
+             <div class="cap">IMG_2943</div>
+           </a>
+<a class="card" data-title="img_2948" href="/patterns/prong/1oc4vofrZz6RXg1w8gYzr1XSHTXTC6Brn.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1oc4vofrZz6RXg1w8gYzr1XSHTXTC6Brn.jpg" alt="IMG_2948"></div>
+             <div class="cap">IMG_2948</div>
+           </a>
+<a class="card" data-title="img_2945" href="/patterns/prong/1Ytx9Hptolvo6EWwjjnTwAglacNHUgIfG.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1Ytx9Hptolvo6EWwjjnTwAglacNHUgIfG.jpg" alt="IMG_2945"></div>
+             <div class="cap">IMG_2945</div>
+           </a>
+<a class="card" data-title="img_2944" href="/patterns/prong/1XDJvaHFdDAR8kOMkvgpwgjW_PAamC0l7.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1XDJvaHFdDAR8kOMkvgpwgjW_PAamC0l7.jpg" alt="IMG_2944"></div>
+             <div class="cap">IMG_2944</div>
+           </a>
+<a class="card" data-title="img_2947" href="/patterns/prong/1XFodP5GuWR5lVB-5AorVrlBhoiDBGdps.jpg" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/1XFodP5GuWR5lVB-5AorVrlBhoiDBGdps.jpg" alt="IMG_2947"></div>
+             <div class="cap">IMG_2947</div>
+           </a></div>
+      </section>
+
+      <section id="sec-root" class="section">
+        <div class="section-head">
+          <h2>Other Patterns</h2>
+          <span class="count">1 pattern</span>
+        </div>
+        <div class="grid"><a class="card" data-title="copy of file_000" href="/patterns/root/10AN7NhOeGxOXs0AbTMgoxDp40K_ZKCwN.png" target="_blank" rel="noopener">
+             <div class="thumb"><img loading="lazy" src="/thumbs/10AN7NhOeGxOXs0AbTMgoxDp40K_ZKCwN.jpg" alt="Copy of File_000"></div>
+             <div class="cap">Copy of File_000</div>
+           </a></div>
+      </section>
+    <footer>
+      <div>Fuzzywumpets <span class="dot">&bull;</span> Crystal Collar Patterns <span class="dot">&bull;</span> 220 patterns</div>
+      <div>Mirrored from Google Drive <span class="dot">&bull;</span> updated Jul 7, 2026, 3:30 PM CT</div>
+    </footer>
+  </main>
+  <script>
+  (function(){
+    var q = document.getElementById('search');
+    var clear = document.getElementById('search-clear');
+    if(!q) return;
+    var sections = [].slice.call(document.querySelectorAll('.section'));
+    var chips = [].slice.call(document.querySelectorAll('.chip'));
+    var nr = document.getElementById('noresults');
+    var nrq = document.getElementById('nrq');
+    function apply(){
+      var term = (q.value||'').toLowerCase().trim();
+      var totalShown = 0;
+      // GLOBAL: every card in every section is filtered, not just the current folder.
+      sections.forEach(function(sec){
+        var cards = [].slice.call(sec.querySelectorAll('.card'));
+        var shown = 0;
+        cards.forEach(function(c){
+          var hit = !term || (c.getAttribute('data-title')||'').indexOf(term) !== -1;
+          c.style.display = hit ? '' : 'none';
+          if(hit) shown++;
+        });
+        sec.style.display = shown ? '' : 'none';
+        var cnt = sec.querySelector('.count');
+        if(cnt) cnt.textContent = shown + (shown===1 ? ' pattern' : ' patterns');
+        totalShown += shown;
+      });
+      chips.forEach(function(ch){
+        var href = ch.getAttribute('href')||'';
+        var sec = href.charAt(0)==='#' ? document.getElementById(href.slice(1)) : null;
+        if(sec) ch.style.display = (sec.style.display==='none') ? 'none' : '';
+      });
+      if(nr){ nr.hidden = !(term && totalShown===0); if(nrq) nrq.textContent = q.value; }
+      if(clear) clear.hidden = !term;
+    }
+    q.addEventListener('input', apply);
+    if(clear) clear.addEventListener('click', function(){ q.value=''; apply(); q.focus(); });
+    // ?q= deep link (so a search can be shared/bookmarked)
+    var m = /[?&]q=([^&]+)/.exec(location.search);
+    if(m){ q.value = decodeURIComponent(m[1].replace(/\+/g,' ')); }
+    apply();
+  })();
+  </script>
+  <script>
+  (function(){
+    var lb  = document.getElementById('lightbox');
+    var lbBack  = document.getElementById('lb-back');
+    var lbImg   = document.getElementById('lb-img');
+    var lbTitle = document.getElementById('lb-title');
+    var lbSec   = document.getElementById('lb-sec');
+    var lbStage = document.getElementById('lb-stage');
+    if(!lb) return;
+    function cap(s){ return (s||'').replace(/\b\w/g,function(c){return c.toUpperCase();}); }
+    function openLightbox(card){
+      var url   = card.getAttribute('href');
+      var title = card.getAttribute('data-title')||'';
+      var sec   = card.closest ? card.closest('.section') : null;
+      var h2    = sec ? sec.querySelector('h2') : null;
+      lbSec.textContent   = h2 ? h2.textContent : '';
+      lbTitle.textContent = cap(title);
+      lbImg.src = '';
+      lb.removeAttribute('hidden');
+      document.body.style.overflow = 'hidden';
+      lbImg.src = url;
+    }
+    function closeLightbox(){
+      lb.setAttribute('hidden','');
+      document.body.style.overflow = '';
+      lbImg.src = '';
+    }
+    [].forEach.call(document.querySelectorAll('.card'), function(card){
+      card.addEventListener('click', function(e){ e.preventDefault(); openLightbox(card); });
+    });
+    lbBack.addEventListener('click', closeLightbox);
+    lbStage.addEventListener('click', function(e){ if(e.target === lbStage) closeLightbox(); });
+    document.addEventListener('keydown', function(e){ if(e.key==='Escape'&&!lb.hidden) closeLightbox(); });
+  })();
+  </script>
+</body>
+</html>

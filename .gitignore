@@ -1,0 +1,10 @@
+node_modules/
+*.log
+dist/
+.venv/
+__pycache__/
+*.sqlite
+*.db
+.DS_Store
+Thumbs.db
+
