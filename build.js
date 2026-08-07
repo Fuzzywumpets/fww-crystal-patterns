@@ -30,12 +30,17 @@ const CONVERT = hasCmd('magick') ? 'magick' : 'convert';
 // "1.5\" Dynasty"), confirmed 2026-08-07. Sniff the real type so they still
 // get a thumbnail and a correct Content-Type from server.js's ext-keyed map.
 const KNOWN_EXTS = new Set(['jpg', 'jpeg', 'png', 'gif', 'webp', 'heic', 'heif', 'pdf']);
+// EXT_BY_MIME maps heic/heif -> jpg, which is only correct where the caller
+// actually converts the bytes (the pre-existing "manifest" clone path did).
+// detectExt here only renames, it never re-encodes — so heic/heif must keep
+// their real extension or the served Content-Type would lie about the bytes.
+const EXT_BY_MIME_NAMES = { ...EXT_BY_MIME, 'image/heif': 'heif', 'image/heic': 'heic' };
 function detectExt(absPath) {
   // execFileSync (not execSync) — filenames legitimately contain literal
   // '"' inch marks (e.g. Aqua clover hearts 1.5"), which breaks shell quoting.
   try {
     const mime = cp.execFileSync('file', ['--mime-type', '-b', absPath], { encoding: 'utf8' }).trim();
-    if (EXT_BY_MIME[mime]) return EXT_BY_MIME[mime];
+    if (EXT_BY_MIME_NAMES[mime]) return EXT_BY_MIME_NAMES[mime];
   } catch (_) { /* fall through to default */ }
   return 'jpg'; // every extensionless file seen in this drive so far is a photo
 }
@@ -99,6 +104,11 @@ function main() {
     if (nameEntries) {
       // Serve name-based files from a mounted static path /names/<slug>/<file>.
       // (server.js also serves public/; we copy/symlink names under public.)
+      // Extensionless files get an extension appended below (e.g. "flower"
+      // -> "flower.jpg"), which could collide with an unrelated real
+      // "flower.jpg" already in the same folder — check against the actual
+      // sibling filenames, not just against what's already staged on disk.
+      const siblingNames = new Set(nameEntries.map(x => x.file));
       for (const e of nameEntries) {
         const abs = path.join(e.dir, e.file);
         let ext = path.extname(e.file).slice(1).toLowerCase();
@@ -109,6 +119,7 @@ function main() {
         if (!KNOWN_EXTS.has(ext)) {
           ext = detectExt(abs);
           stagedName = `${e.file}.${ext}`;
+          if (siblingNames.has(stagedName)) stagedName = `${e.file}__noext.${ext}`;
         }
         // stage into public/names/<slug>/ so the static server can serve it
         const stageDir = path.join(PUB, 'names', sec.slug);
