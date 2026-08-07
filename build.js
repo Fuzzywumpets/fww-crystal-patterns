@@ -25,6 +25,26 @@ function hasCmd(c) {
 const HAS_CONVERT = hasCmd('convert') || hasCmd('magick');
 const CONVERT = hasCmd('magick') ? 'magick' : 'convert';
 
+// DEPENDS: sync.sh (rclone --exclude filter, not --include-by-extension) —
+// this drive has real photos with no extension in the filename (e.g.
+// "1.5\" Dynasty"), confirmed 2026-08-07. Sniff the real type so they still
+// get a thumbnail and a correct Content-Type from server.js's ext-keyed map.
+const KNOWN_EXTS = new Set(['jpg', 'jpeg', 'png', 'gif', 'webp', 'heic', 'heif', 'pdf']);
+// EXT_BY_MIME maps heic/heif -> jpg, which is only correct where the caller
+// actually converts the bytes (the pre-existing "manifest" clone path did).
+// detectExt here only renames, it never re-encodes — so heic/heif must keep
+// their real extension or the served Content-Type would lie about the bytes.
+const EXT_BY_MIME_NAMES = { ...EXT_BY_MIME, 'image/heif': 'heif', 'image/heic': 'heic' };
+function detectExt(absPath) {
+  // execFileSync (not execSync) — filenames legitimately contain literal
+  // '"' inch marks (e.g. Aqua clover hearts 1.5"), which breaks shell quoting.
+  try {
+    const mime = cp.execFileSync('file', ['--mime-type', '-b', absPath], { encoding: 'utf8' }).trim();
+    if (EXT_BY_MIME_NAMES[mime]) return EXT_BY_MIME_NAMES[mime];
+  } catch (_) { /* fall through to default */ }
+  return 'jpg'; // every extensionless file seen in this drive so far is a photo
+}
+
 function ensureThumb(srcAbs, id, ext) {
   // Return web path to a thumbnail if we can make/have one, else null.
   const isRaster = ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext);
@@ -33,8 +53,10 @@ function ensureThumb(srcAbs, id, ext) {
   const web = `/thumbs/${id}.jpg`;
   try {
     if (fs.existsSync(dst) && fs.statSync(dst).size > 0) return web;
+    // execFileSync (not execSync) — filenames legitimately contain literal
+    // '"' inch marks, which breaks shell quoting in a template-string command.
     // -auto-orient fixes phone EXIF rotation; strip metadata; cap 600px; quality 80
-    cp.execSync(`${CONVERT} "${srcAbs}[0]" -auto-orient -strip -resize "600x600>" -quality 80 "${dst}"`,
+    cp.execFileSync(CONVERT, [`${srcAbs}[0]`, '-auto-orient', '-strip', '-resize', '600x600>', '-quality', '80', dst],
       { stdio: 'ignore', timeout: 60000 });
     if (fs.existsSync(dst) && fs.statSync(dst).size > 0) return web;
   } catch (_) { /* fall through to full image */ }
@@ -82,16 +104,30 @@ function main() {
     if (nameEntries) {
       // Serve name-based files from a mounted static path /names/<slug>/<file>.
       // (server.js also serves public/; we copy/symlink names under public.)
+      // Extensionless files get an extension appended below (e.g. "flower"
+      // -> "flower.jpg"), which could collide with an unrelated real
+      // "flower.jpg" already in the same folder — check against the actual
+      // sibling filenames, not just against what's already staged on disk.
+      const siblingNames = new Set(nameEntries.map(x => x.file));
       for (const e of nameEntries) {
-        const ext = path.extname(e.file).slice(1).toLowerCase();
         const abs = path.join(e.dir, e.file);
+        let ext = path.extname(e.file).slice(1).toLowerCase();
+        let stagedName = e.file;
+        // path.extname("1.5” Dynasty") returns ".5” dynasty" — a bare dot in
+        // a decimal-inch name, not a real extension — so check against a
+        // known-extension whitelist, not mere non-emptiness.
+        if (!KNOWN_EXTS.has(ext)) {
+          ext = detectExt(abs);
+          stagedName = `${e.file}.${ext}`;
+          if (siblingNames.has(stagedName)) stagedName = `${e.file}__noext.${ext}`;
+        }
         // stage into public/names/<slug>/ so the static server can serve it
         const stageDir = path.join(PUB, 'names', sec.slug);
         fs.mkdirSync(stageDir, { recursive: true });
-        const staged = path.join(stageDir, e.file);
+        const staged = path.join(stageDir, stagedName);
         try { if (!fs.existsSync(staged)) fs.copyFileSync(abs, staged); } catch (_) {}
         work.push({
-          abs: staged, web: '/names/' + sec.slug + '/' + encodeURIComponent(e.file),
+          abs: staged, web: '/names/' + sec.slug + '/' + encodeURIComponent(stagedName),
           ext, title: niceTitle(e.file), key: e.file.replace(/[^a-zA-Z0-9]/g, '_'),
         });
       }

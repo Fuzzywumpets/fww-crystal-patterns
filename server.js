@@ -18,6 +18,8 @@ const MIME = {
   '.jpeg': 'image/jpeg',
   '.gif': 'image/gif',
   '.webp': 'image/webp',
+  '.heic': 'image/heic',
+  '.heif': 'image/heif',
   '.svg': 'image/svg+xml',
   '.pdf': 'application/pdf',
   '.ico': 'image/x-icon',
@@ -58,7 +60,7 @@ const server = http.createServer((req, res) => {
     const headers = { 'Content-Type': type };
     // PDFs open inline in-browser; images cached a day; html revalidates.
     if (ext === '.pdf') headers['Content-Disposition'] = 'inline';
-    if (['.png', '.jpg', '.jpeg', '.webp', '.gif', '.pdf'].includes(ext)) {
+    if (['.png', '.jpg', '.jpeg', '.webp', '.gif', '.heic', '.heif', '.pdf'].includes(ext)) {
       headers['Cache-Control'] = 'public, max-age=86400';
     } else {
       headers['Cache-Control'] = 'no-cache';
