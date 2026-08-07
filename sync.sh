@@ -45,10 +45,18 @@ else
       mkdir -p "sync_by_name/$slug"
       echo "[$(TS)] rclone sync $slug ($fid)"
       # Sync by human filename into a staging tree (mirrors renames/deletes).
+      # DEPENDS: these folders are dedicated pattern-photo folders (confirmed
+      # 2026-08-07 — every entry, extensioned or not, is image/jpeg content).
+      # Many real pattern photos in this Drive have NO file extension in
+      # their filename (e.g. "1.5\" Dynasty"), so an extension-based
+      # --include list silently drops them. Filter by junk instead of by
+      # extension so extensionless images still sync.
       rclone sync "${REMOTE}:" "sync_by_name/$slug" \
         --drive-team-drive "$DRIVE_ID" --drive-root-folder-id "$fid" \
         --fast-list --transfers 4 --checkers 8 \
-        --include "*.{jpg,jpeg,png,gif,webp,heic,heif,pdf,JPG,JPEG,PNG,GIF,WEBP,HEIC,HEIF,PDF}" \
+        --exclude ".*" --exclude "Thumbs.db" --exclude "desktop.ini" \
+        --exclude "*.txt" --exclude "*.zip" --exclude "*.doc" --exclude "*.docx" \
+        --exclude "*.xls" --exclude "*.xlsx" \
         2>&1 | tail -3 || echo "[$(TS)] WARN: sync of $slug returned nonzero"
     done
     # build.js auto-detects sync_by_name/<slug>/ and indexes it directly,
