@@ -108,7 +108,9 @@ function main() {
       // -> "flower.jpg"), which could collide with an unrelated real
       // "flower.jpg" already in the same folder — check against the actual
       // sibling filenames, not just against what's already staged on disk.
-      const siblingNames = new Set(nameEntries.map(x => x.file));
+      // usedNames = every real filename in the folder plus every name already handed out
+      // to an extensionless file, so no two staged files can ever share a name.
+      const usedNames = new Set(nameEntries.map(x => x.file));
       for (const e of nameEntries) {
         const abs = path.join(e.dir, e.file);
         let ext = path.extname(e.file).slice(1).toLowerCase();
@@ -119,7 +121,12 @@ function main() {
         if (!KNOWN_EXTS.has(ext)) {
           ext = detectExt(abs);
           stagedName = `${e.file}.${ext}`;
-          if (siblingNames.has(stagedName)) stagedName = `${e.file}__noext.${ext}`;
+          // "x" -> "x.jpg"; if that is taken (a real "x.jpg", or an earlier extensionless
+          // "x.jpg"-producing name) use "x__noext.jpg", then "x__noext2.jpg", ...
+          for (let n = 1; usedNames.has(stagedName); n++) {
+            stagedName = `${e.file}__noext${n > 1 ? n : ''}.${ext}`;
+          }
+          usedNames.add(stagedName);
         }
         // stage into public/names/<slug>/ so the static server can serve it
         const stageDir = path.join(PUB, 'names', sec.slug);
